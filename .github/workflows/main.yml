@@ -16,5 +16,3 @@ jobs:
           api_key: ${{ secrets.ENDOR_API_KEY }}
           api_secret: ${{ secrets.ENDOR_API_SECRET }}
           namespace: "release-test"
-          log_verbose: true
-          log_level: "debug"
