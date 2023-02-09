@@ -1,0 +1,20 @@
+on: workflow_dispatch
+
+jobs:
+  test_job:
+    runs-on: self-hosted
+    name: A sample job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run scan
+        id: run-scan
+        uses: endorlab/github-action@main
+        with:
+          api: ${{ secrets.ENDOR_API }}
+          api_key: ${{ secrets.ENDOR_API_KEY }}
+          api_secret: ${{ secrets.ENDOR_API_SECRET }}
+          namespace: "release-test"
+          log_verbose: true
+          log_level: "debug"
