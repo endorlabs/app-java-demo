@@ -16,3 +16,5 @@ jobs:
           api_key: ${{ secrets.ENDOR_API_KEY }}
           api_secret: ${{ secrets.ENDOR_API_SECRET }}
           namespace: "release-test"
+          additional_args: "--github-api-url=https://github.seneshore.com"
+          log_verbose: true
