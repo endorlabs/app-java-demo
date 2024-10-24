@@ -57,5 +57,6 @@ jobs:
           if: ${{ github.event_name == 'workflow_dispatch' }}
           run: |
             env
+            mv /usr/local/bin/tsserver /usr/local/bin/tsserver.tmp 
             which tsserver
             ENDOR_JS_ENABLE_TSSERVER=true endorctl scan --log-level debug --verbose --call-graph-languages=javascript,typescript --languages=javascript,typescript --path $GITHUB_WORKSPACE/js_vuln_test
