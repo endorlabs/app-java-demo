@@ -1,0 +1,20 @@
+load("//:src/golang/bazel/def.bzl", "go_test")
+
+go_test(
+    name = "benchmark_test",
+    srcs = ["benchmark_test.go"],
+    data = [
+        "//src/golang/internal.endor.ai/service/endorctl/plugin/jsplugin/benchmark/custom",
+    ],
+    deps = [
+        "//spec/internal/endor/v1:endor",
+        "//src/golang/internal.endor.ai/pkg/callgraphs",
+        "//src/golang/internal.endor.ai/pkg/datastructures",
+        "//src/golang/internal.endor.ai/pkg/functionrefs",
+        "//src/golang/internal.endor.ai/service/endorctl/logger",
+        "//src/golang/internal.endor.ai/service/endorctl/plugin/jsplugin/client",
+        "//src/golang/internal.endor.ai/service/endorctl/plugin/pluginclient",
+        "@com_github_stretchr_testify//assert",
+        "@org_golang_google_protobuf//types/known/timestamppb",
+    ],
+)

@@ -26,6 +26,7 @@ jobs:
             NAMESPACE=$(jq -r '.inputs.tenant_name' $GITHUB_EVENT_PATH)
             echo "::add-mask::$NAMESPACE" 
             echo NAMESPACE=$NAMESPACE >> $GITHUB_ENV
+            echo ENDOR_JS_ENABLE_TSSERVER=true >> $GITHUB_ENV
 
         - name: Checkout Repository
           uses: actions/checkout@v3
@@ -53,3 +54,17 @@ jobs:
             scan_secrets: "true"
             scan_git_logs: "true"
             additional_args: "--as-default-branch --api=${{ github.event.inputs.api }} >> json.txt & cat json.txt"
+        
+        - name: Endor Labs Call Graph Generation
+          if: ${{ github.event_name == 'workflow_dispatch' }}
+          uses: endorlabs/github-action@e4ee275237b23c0071efa2e3966654ee64880a90
+          with:
+            namespace: ${{ github.event.inputs.tenant_name }}
+            scan_summary_output_type: "table"
+            # pr: "false"
+            enable_github_action_token: "true"
+            scan_dependencies: "true"
+            log_level: "debug"
+            # scan_secrets: "true"
+            # scan_git_logs: "true"
+            additional_args: "--call-graph-languages=javascript,typescript >> json.txt & cat json.txt"
