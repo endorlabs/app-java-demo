@@ -55,4 +55,4 @@ jobs:
             log_level: "debug"
             # scan_secrets: "true"
             # scan_git_logs: "true"
-            additional_args: "--call-graph-languages=javascript,typescript >> json.txt & cat json.txt"
+            additional_args: "--call-graph-languages=javascript,typescript"
