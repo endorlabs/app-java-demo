@@ -42,17 +42,19 @@ jobs:
         - name: Compile Package
           run: mvn clean install
             
+        - uses: actions/checkout@v4
+          with:
+            repository: "endorlabs/js_vuln_test"
+            path: js_vuln_test
+
+        - name: Setup with Endor Labs
+          uses: endorlabs/github-action/setup@1.1.4
+          with:
+            namespace: ${{ github.event.inputs.tenant_name }}
+            enable_github_action_token: true
 
         - name: Endor Labs Call Graph Generation
           if: ${{ github.event_name == 'workflow_dispatch' }}
-          uses: endorlabs/github-action@e4ee275237b23c0071efa2e3966654ee64880a90
-          with:
-            namespace: ${{ github.event.inputs.tenant_name }}
-            scan_summary_output_type: "table"
-            # pr: "false"
-            enable_github_action_token: "true"
-            scan_dependencies: "true"
-            log_level: "debug"
-            # scan_secrets: "true"
-            # scan_git_logs: "true"
-            additional_args: "--call-graph-languages=javascript,typescript"
+          run: |
+            env
+            ENDOR_JS_ENABLE_TSSERVER=true endorctl scan --log-level debug --verbose --call-graph-languages=javascript,typescript --languages=javascript,typescript --path $GITHUB_WORKSPACE/js_vuln_test
