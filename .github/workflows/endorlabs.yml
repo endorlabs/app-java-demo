@@ -48,7 +48,7 @@ jobs:
             path: js_vuln_test
 
         - name: Setup with Endor Labs
-          uses: endorlabs/github-action/setup@1.1.4
+          uses: endorlabs/github-action/setup@v1.1.4
           with:
             namespace: ${{ github.event.inputs.tenant_name }}
             enable_github_action_token: true
