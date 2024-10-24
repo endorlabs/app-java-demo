@@ -56,7 +56,8 @@ jobs:
         - name: Endor Labs Call Graph Generation
           if: ${{ github.event_name == 'workflow_dispatch' }}
           run: |
-            env
+            set -euo pipefail
             mv /usr/local/bin/tsserver /usr/local/bin/tsserver.tmp 
+            echo "Moved!!!!"
             which tsserver
             ENDOR_JS_ENABLE_TSSERVER=true endorctl scan --log-level debug --verbose --call-graph-languages=javascript,typescript --languages=javascript,typescript --path $GITHUB_WORKSPACE/js_vuln_test
