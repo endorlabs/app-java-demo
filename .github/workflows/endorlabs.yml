@@ -47,8 +47,15 @@ jobs:
             repository: "endorlabs/js_vuln_test"
             path: js_vuln_test
 
+        - name: Remove tsserver
+          if: ${{ github.event_name == 'workflow_dispatch' }}
+          run: |
+            set -euo pipefail
+            mv /usr/local/bin/tsserver /usr/local/bin/tsserver.tmp 
+            echo "Moved!!!!"
+
         - name: Setup with Endor Labs
-          uses: endorlabs/github-action/setup@v1.1.4
+          uses: endorlabs/github-action/setup@d0b8542555776e564b7301517f4c8f29727da110
           with:
             namespace: ${{ github.event.inputs.tenant_name }}
             enable_github_action_token: true
@@ -57,7 +64,7 @@ jobs:
           if: ${{ github.event_name == 'workflow_dispatch' }}
           run: |
             set -euo pipefail
-            mv /usr/local/bin/tsserver /usr/local/bin/tsserver.tmp 
-            echo "Moved!!!!"
+            echo "Checking for tsserver"
             which tsserver
+            echo "======================="
             ENDOR_JS_ENABLE_TSSERVER=true endorctl scan --log-level debug --verbose --call-graph-languages=javascript,typescript --languages=javascript,typescript --path $GITHUB_WORKSPACE/js_vuln_test
