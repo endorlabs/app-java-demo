@@ -55,7 +55,7 @@ jobs:
             echo "Moved!!!!"
 
         - name: Setup with Endor Labs
-          uses: endorlabs/github-action/setup@d0b8542555776e564b7301517f4c8f29727da110
+          uses: endorlabs/github-action/setup@09e792149131d4525d503cef36576f435d6067e6
           with:
             namespace: ${{ github.event.inputs.tenant_name }}
             enable_github_action_token: true
