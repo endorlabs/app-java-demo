@@ -32,12 +32,24 @@ jobs:
             java-version: "17"
             cache: maven
             cache-dependency-path: pom.xml
+            
+        - name: Endor Labs SAST
+          if: ${{ github.event_name == 'pull_request' }}
+          uses: endorlabs/github-action@main
+          with:
+            namespace: ${{ github.event.inputs.tenant_name }}
+            scan_summary_output_type: "table"
+            pr: "true"
+            enable_github_action_token: "true"
+            scan_dependencies: "false"
+            scan_sast: "true"
+            scan_git_logs: "true"
 
         - name: Compile Package
           run: mvn clean install
             
         - name: Endor Labs Workflow Dispatch
-          if: ${{ github.event_name == 'workflow_dispatch' }}
+          if: ${{ github.event_name == 'pull_request' }}
           uses: endorlabs/github-action@main
           with:
             namespace: ${{ github.event.inputs.tenant_name }}
@@ -45,5 +57,5 @@ jobs:
             pr: "true"
             enable_github_action_token: "true"
             scan_dependencies: "true"
-            scan_secrets: "true"
-            scan_git_logs: "true"
+            scan_secrets: "false"
+            scan_git_logs: "false"
