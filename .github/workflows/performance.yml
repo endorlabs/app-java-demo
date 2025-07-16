@@ -1,4 +1,4 @@
-name: Endor Labs Scan Performance Benchmark
+name: Endor Labs Scan Performance Benchmark New Version
 on:
   workflow_dispatch:
     inputs:
@@ -32,24 +32,24 @@ jobs:
         - name: Compile Package
           run: mvn clean install
         - name: Setup Endor Endor Labs
-          uses: endorlabs/github-action/setup@main
-          with:
-            namespace: "${{ github.event.inputs.tenant_name }}"
+          run: |
+            curl https://api.staging.endorlabs.com/download/endorlabs/v1.7.385/binaries/endorctl_v1.7.385_linux_amd64 -o endorctl;
+            echo "eb06778c22aa893567f4133d680c84ad852ddc70ab7714c281367a5c7e4b5af8 endorctl" | sha256sum --check;
+            chmod +x ./endorctl
         - name: Endor Labs Scan - Full Scan
           env:
             ENDOR_NAMESPACE: "${{ github.event.inputs.tenant_name }}"
             ENDOR_API: "${{ github.event.inputs.api_base }}"
             ENDOR_API_CREDENTIALS_KEY: ${{ secrets.ENDOR_API_CREDENTIALS_KEY }}
             ENDOR_API_CREDENTIALS_SECRET: ${{ secrets.ENDOR_API_CREDENTIALS_SECRET }}
-          run: endorctl scan
+          run: ./endorctl scan
         - name: Endor Labs Scan - Quick Scan
           env:
             ENDOR_NAMESPACE: "${{ github.event.inputs.tenant_name }}"
             ENDOR_API: "${{ github.event.inputs.api_base }}"
             ENDOR_API_CREDENTIALS_KEY: ${{ secrets.ENDOR_API_CREDENTIALS_KEY }}
             ENDOR_API_CREDENTIALS_SECRET: ${{ secrets.ENDOR_API_CREDENTIALS_SECRET }}
-          run: endorctl scan --quick-scan
-            
+          run: ./endorctl scan --quick-scan
         - name: Download Snyk
           uses: snyk/actions/setup@master
         - name: Run Snyk Dev Deps
