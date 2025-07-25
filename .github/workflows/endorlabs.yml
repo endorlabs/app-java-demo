@@ -34,12 +34,24 @@ jobs:
             java-version: "17"
             cache: maven
             cache-dependency-path: pom.xml
+
+        - name: Endor Labs SAST
+          if: ${{ github.event_name == 'workflow_dispatch' }}
+          uses: endorlabs/github-action@main
+          with:
+            namespace: "yolo"
+            scan_summary_output_type: "table"
+            pr: "false"
+            enable_github_action_token: "true"
+            scan_dependencies: "false"
+            scan_sast: "true"
+            scan_git_logs: "true"
             
         - name: Endor Labs SAST
           if: ${{ github.event_name == 'pull_request' }}
           uses: endorlabs/github-action@main
           with:
-            namespace: ${{ github.event.inputs.tenant_name }}
+            namespace: "yolo"
             scan_summary_output_type: "table"
             pr: "true"
             enable_github_action_token: "true"
@@ -54,9 +66,22 @@ jobs:
           if: ${{ github.event_name == 'pull_request' }}
           uses: endorlabs/github-action@main
           with:
-            namespace: ${{ github.event.inputs.tenant_name }}
+            namespace: "yolo"
             scan_summary_output_type: "table"
             pr: "true"
+            enable_github_action_token: "true"
+            scan_dependencies: "true"
+            scan_secrets: "true"
+            enable_pr_comments: "true"
+            scan_git_logs: "false"
+
+        - name: Endor Labs SCA & Secrets
+          if: ${{ github.event_name == 'workflow_dispatch' }}
+          uses: endorlabs/github-action@main
+          with:
+            namespace: "yolo"
+            scan_summary_output_type: "table"
+            pr: "false"
             enable_github_action_token: "true"
             scan_dependencies: "true"
             scan_secrets: "true"
