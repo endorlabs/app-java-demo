@@ -48,7 +48,7 @@ jobs:
         - name: Compile Package
           run: mvn clean install
             
-        - name: Endor Labs Workflow Dispatch
+        - name: Endor Labs SCA & Secrets
           if: ${{ github.event_name == 'pull_request' }}
           uses: endorlabs/github-action@main
           with:
@@ -57,6 +57,6 @@ jobs:
             pr: "true"
             enable_github_action_token: "true"
             scan_dependencies: "true"
-            scan_secrets: "false"
+            scan_secrets: "true"
             enable_pr_comments: "true"
             scan_git_logs: "false"
