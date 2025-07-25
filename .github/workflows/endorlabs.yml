@@ -46,7 +46,8 @@ jobs:
             enable_github_action_token: "true"
             scan_dependencies: "false"
             scan_sast: "true"
-            scan_git_logs: "true"
+            scan_secrets: "true"
+            scan_git_logs: "false"
             
         - name: Endor Labs SAST
           if: ${{ github.event_name == 'pull_request' }}
@@ -58,7 +59,8 @@ jobs:
             enable_github_action_token: "true"
             scan_dependencies: "false"
             scan_sast: "true"
-            scan_git_logs: "true"
+            scan_secrets: "true"
+            scan_git_logs: "false"
 
         - name: Compile Package
           run: mvn clean install
@@ -72,9 +74,8 @@ jobs:
             pr: "true"
             enable_github_action_token: "true"
             scan_dependencies: "true"
-            scan_secrets: "true"
+            scan_secrets: "false"
             enable_pr_comments: "true"
-            scan_git_logs: "false"
 
         - name: Endor Labs SCA & Secrets
           if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -87,4 +88,3 @@ jobs:
             scan_dependencies: "true"
             scan_secrets: "true"
             enable_pr_comments: "true"
-            scan_git_logs: "false"
