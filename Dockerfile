@@ -1,44 +1,37 @@
-FROM ubuntu:22.04
-
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV CATALINA_HOME=/opt/tomcat
-ENV PATH=$PATH:$CATALINA_HOME/bin
+FROM alpine:3.16
 
 WORKDIR /app
 
-# Update package list and install basic dependencies
-RUN apt-get update && \
-    apt-get install -y \
+# Install basic dependencies
+RUN apk add --no-cache \
     wget \
     curl \
     unzip \
     tar \
     gzip \
-    && rm -rf /var/lib/apt/lists/*
+    bash
 
 # Install OpenJDK 17
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+    openjdk17-jdk
 
-# Set JAVA_HOME dynamically based on actual installation and update PATH
-RUN JAVA_HOME=$(find /usr/lib/jvm -name "java-17-openjdk-*" -type d | head -1) && \
-    echo "export JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
-    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment && \
-    echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile && \
-    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/profile && \
-    echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
-    echo "PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment
+# Set JAVA_HOME for Alpine Linux
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-# Download and install Tomcat 9
-RUN wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz && \
-    tar -xzf apache-tomcat-9.0.62.tar.gz && \
-    mv apache-tomcat-9.0.62 /opt/tomcat && \
-    rm apache-tomcat-9.0.62.tar.gz
+# Install Jetty manually (not available as package in Alpine 3.16)
+RUN wget -qO- https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.50.v20221201/jetty-distribution-9.4.50.v20221201.tar.gz | \
+    tar xz -C /opt/ && \
+    ln -s /opt/jetty-distribution-9.4.50.v20221201 /opt/jetty
 
-# Set permissions for Tomcat
-RUN chmod +x /opt/tomcat/bin/*.sh
+# Set Jetty environment variables
+ENV JETTY_HOME=/opt/jetty
+ENV JETTY_BASE=/var/lib/jetty
+ENV PATH=$JETTY_HOME/bin:$PATH
+
+# Create Jetty base directory and set permissions
+RUN mkdir -p $JETTY_BASE && \
+    chmod +x $JETTY_HOME/bin/*.sh
 
 # Create necessary directories
 RUN mkdir -p /app/webapps /app/lib
@@ -47,21 +40,23 @@ RUN mkdir -p /app/webapps /app/lib
 COPY target/endor-java-webapp-demo.jar /app/webapps/
 COPY target/dependency/ /app/lib/
 
-# Copy the JAR file to Tomcat's webapps directory
-RUN cp /app/webapps/endor-java-webapp-demo.jar $CATALINA_HOME/webapps/
+# Copy the JAR file to Jetty's webapps directory
+RUN cp /app/webapps/endor-java-webapp-demo.jar $JETTY_HOME/webapps/
 
-# Copy dependencies to Tomcat's lib directory
-RUN cp /app/lib/*.jar $CATALINA_HOME/lib/
+# Copy dependencies to Jetty's lib directory
+RUN cp /app/lib/*.jar $JETTY_HOME/lib/
 
-# Expose Tomcat's default port
+# Expose Jetty's default port
 EXPOSE 8080
 
-# Create a startup script that sources environment variables
-RUN echo '#!/bin/bash' > /startup.sh && \
-    echo 'source /etc/environment' >> /startup.sh && \
-    echo 'source /etc/profile' >> /startup.sh && \
-    echo 'exec /opt/tomcat/bin/catalina.sh run' >> /startup.sh && \
+# Create a startup script for Alpine Linux with manual Jetty installation
+RUN echo '#!/bin/sh' > /startup.sh && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> /startup.sh && \
+    echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /startup.sh && \
+    echo 'export JETTY_HOME=/opt/jetty' >> /startup.sh && \
+    echo 'export JETTY_BASE=/var/lib/jetty' >> /startup.sh && \
+    echo 'exec java -jar $JETTY_HOME/start.jar' >> /startup.sh && \
     chmod +x /startup.sh
 
-# Start Tomcat using the startup script
+# Start Jetty using the startup script
 CMD ["/startup.sh"]
