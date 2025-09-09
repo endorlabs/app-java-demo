@@ -19,7 +19,7 @@ public class BotTest extends HttpServlet {
 	boolean isPost = false;
     protected void doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, IOException {
     	isPost = true;
-    	System.out.println("In Post request method maybe esdafsdfasf");
+    	System.out.println("In Post request method maybe fdsafdsafdsafdsaf");
         doGet(request, response);
         //String UserId = request.getParameter("UserId");
        // String Password = request.getParameter("Password");
