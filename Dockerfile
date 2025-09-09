@@ -15,27 +15,21 @@ RUN apt-get update && \
     unzip \
     tar \
     gzip \
+    openjdk-17-jdk \
     && rm -rf /var/lib/apt/lists/*
-
-# Install OpenJDK 17
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
 
 # Set JAVA_HOME dynamically based on actual installation and update PATH
 RUN JAVA_HOME=$(find /usr/lib/jvm -name "java-17-openjdk-*" -type d | head -1) && \
     echo "export JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
     echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment && \
     echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile && \
-    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/profile && \
-    echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
-    echo "PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment
+    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/profile
 
-# Download and install Tomcat 9
-RUN wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz && \
-    tar -xzf apache-tomcat-9.0.62.tar.gz && \
-    mv apache-tomcat-9.0.62 /opt/tomcat && \
-    rm apache-tomcat-9.0.62.tar.gz
+# Download and install Tomcat 9 (updated to secure version 9.0.90)
+RUN wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.90/bin/apache-tomcat-9.0.90.tar.gz && \
+    tar -xzf apache-tomcat-9.0.90.tar.gz && \
+    mv apache-tomcat-9.0.90 /opt/tomcat && \
+    rm apache-tomcat-9.0.90.tar.gz
 
 # Set permissions for Tomcat
 RUN chmod +x /opt/tomcat/bin/*.sh
@@ -50,7 +44,7 @@ COPY target/dependency/ /app/lib/
 # Copy the JAR file to Tomcat's webapps directory
 RUN cp /app/webapps/endor-java-webapp-demo.jar $CATALINA_HOME/webapps/
 
-# Copy dependencies to Tomcat's lib directory
+# Copy dependencies to Tomcat's lib directory, ensuring updated versions
 RUN cp /app/lib/*.jar $CATALINA_HOME/lib/
 
 # Expose Tomcat's default port
