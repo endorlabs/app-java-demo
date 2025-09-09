@@ -1,67 +1,56 @@
-FROM ubuntu:22.04
+# Secure multi-stage build to fetch patched libraries and run on a hardened Tomcat base
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV CATALINA_HOME=/opt/tomcat
-ENV PATH=$PATH:$CATALINA_HOME/bin
-
-WORKDIR /app
-
-# Update package list and install basic dependencies
-RUN apt-get update && \
-    apt-get install -y \
-    wget \
-    curl \
-    unzip \
-    tar \
-    gzip \
+# Stage 1: Fetch patched dependency JARs from Maven Central
+FROM debian:12-slim AS deps
+# Security: install only needed tools and clean up apt cache
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
+WORKDIR /safe-libs
+# Download fixed versions of vulnerable libraries (pin exact versions)
+# - log4j-core: upgrade to 2.17.2 to fix multiple RCE/DoS vulnerabilities
+# - slf4j-ext: upgrade to >=1.7.26 (use 1.7.36)
+# - c3p0: upgrade to >=0.9.5.4 (use 0.9.5.5)
+# - commons-text: upgrade to >=1.10.0 (use 1.10.0)
+RUN set -eux; \
+    curl -fSL -o log4j-core-2.17.2.jar https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.2/log4j-core-2.17.2.jar; \
+    curl -fSL -o slf4j-ext-1.7.36.jar https://repo1.maven.org/maven2/org/slf4j/slf4j-ext/1.7.36/slf4j-ext-1.7.36.jar; \
+    curl -fSL -o c3p0-0.9.5.5.jar https://repo1.maven.org/maven2/com/mchange/c3p0/0.9.5.5/c3p0-0.9.5.5.jar; \
+    curl -fSL -o commons-text-1.10.0.jar https://repo1.maven.org/maven2/org/apache/commons/commons-text/1.10.0/commons-text-1.10.0.jar
 
-# Install OpenJDK 17
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 2: Use an official, pinned Tomcat base image with JDK 17
+# Security: Use Tomcat 9.0.108 which contains fixes for multiple CVEs in catalina/coyote/websocket/util
+FROM tomcat:9.0.108-jdk17-temurin-jammy
 
-# Set JAVA_HOME dynamically based on actual installation and update PATH
-RUN JAVA_HOME=$(find /usr/lib/jvm -name "java-17-openjdk-*" -type d | head -1) && \
-    echo "export JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
-    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment && \
-    echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile && \
-    echo "export PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/profile && \
-    echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
-    echo "PATH=\$JAVA_HOME/bin:\$PATH" >> /etc/environment
+# Create non-root user and group, and set secure permissions
+# Security: Drop root privileges for runtime
+ARG APP_USER=tomcat
+ARG APP_GROUP=tomcat
+RUN set -eux; \
+    groupadd --system --gid 1001 "$APP_GROUP"; \
+    useradd --system --create-home --uid 1001 --gid 1001 --home-dir /home/"$APP_USER" "$APP_USER"; \
+    chown -R "$APP_USER":"$APP_GROUP" "$CATALINA_HOME"
 
-# Download and install Tomcat 9
-RUN wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz && \
-    tar -xzf apache-tomcat-9.0.62.tar.gz && \
-    mv apache-tomcat-9.0.62 /opt/tomcat && \
-    rm apache-tomcat-9.0.62.tar.gz
+# Copy application-provided libraries, but ensure ownership is non-root
+# Security: Use COPY (not ADD) and pin ownership
+COPY --chown=${APP_USER}:${APP_GROUP} ./lib/ ${CATALINA_HOME}/lib/
 
-# Set permissions for Tomcat
-RUN chmod +x /opt/tomcat/bin/*.sh
+# Remove known vulnerable JARs and replace with patched versions from the deps stage
+# Security: purge vulnerable versions present in the application libs and add fixed ones
+RUN set -eux; \
+    find "${CATALINA_HOME}/lib" -maxdepth 1 -type f -name 'log4j-core-*.jar' -delete; \
+    find "${CATALINA_HOME}/lib" -maxdepth 1 -type f -name 'slf4j-ext-1.7.2*.jar' -delete; \
+    find "${CATALINA_HOME}/lib" -maxdepth 1 -type f -name 'c3p0-0.9.5.2*.jar' -delete; \
+    find "${CATALINA_HOME}/lib" -maxdepth 1 -type f -name 'commons-text-1.9*.jar' -delete
 
-# Create necessary directories
-RUN mkdir -p /app/webapps /app/lib
+# Add patched libraries
+COPY --from=deps --chown=${APP_USER}:${APP_GROUP} /safe-libs/*.jar ${CATALINA_HOME}/lib/
 
-# Copy the built artifact and dependencies from the target directory
-COPY target/endor-java-webapp-demo.jar /app/webapps/
-COPY target/dependency/ /app/lib/
-
-# Copy the JAR file to Tomcat's webapps directory
-RUN cp /app/webapps/endor-java-webapp-demo.jar $CATALINA_HOME/webapps/
-
-# Copy dependencies to Tomcat's lib directory
-RUN cp /app/lib/*.jar $CATALINA_HOME/lib/
-
-# Expose Tomcat's default port
+# Expose application port
 EXPOSE 8080
 
-# Create a startup script that sources environment variables
-RUN echo '#!/bin/bash' > /startup.sh && \
-    echo 'source /etc/environment' >> /startup.sh && \
-    echo 'source /etc/profile' >> /startup.sh && \
-    echo 'exec /opt/tomcat/bin/catalina.sh run' >> /startup.sh && \
-    chmod +x /startup.sh
+# Run as non-root user for least privilege
+USER ${APP_USER}
 
-# Start Tomcat using the startup script
-CMD ["/startup.sh"]
+# Start Tomcat
+CMD ["catalina.sh", "run"]
