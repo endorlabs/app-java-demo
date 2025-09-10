@@ -1,26 +1,62 @@
-FROM maven:3.8.4-openjdk-17-slim AS build
+FROM alpine:3.16
 
 WORKDIR /app
 
-# Copy the Maven project files into the container
-COPY . .
+# Install basic dependencies
+RUN apk add --no-cache \
+    wget \
+    curl \
+    unzip \
+    tar \
+    gzip \
+    bash
 
-# Build the Maven project
-RUN mvn clean install
-RUN mvn dependency:copy-dependencies
+# Install OpenJDK 17
+RUN apk add --no-cache \
+    openjdk17-jdk
 
-# Use a smaller image for deployment
-FROM openjdk:17-slim
+# Set JAVA_HOME for Alpine Linux
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-# Set the working directory inside the container
-WORKDIR /app
+# Install Jetty manually (not available as package in Alpine 3.16)
+RUN wget -qO- https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.50.v20221201/jetty-distribution-9.4.50.v20221201.tar.gz | \
+    tar xz -C /opt/ && \
+    ln -s /opt/jetty-distribution-9.4.50.v20221201 /opt/jetty
 
-# Copy the built artifact from the build stage
-COPY --from=build /app/target/endor-java-webapp-demo.jar .
-COPY --from=build /app/target/dependency dependency/
+# Set Jetty environment variables
+ENV JETTY_HOME=/opt/jetty
+ENV JETTY_BASE=/var/lib/jetty
+ENV PATH=$JETTY_HOME/bin:$PATH
 
-# Expose any necessary ports
-EXPOSE 443
+# Create Jetty base directory and set permissions
+RUN mkdir -p $JETTY_BASE && \
+    chmod +x $JETTY_HOME/bin/*.sh
 
-# Set the command to run your application
-CMD ["java", "-jar", "endor-java-webapp-demo.jar"]
+# Create necessary directories
+RUN mkdir -p /app/webapps /app/lib
+
+# Copy the built artifact and dependencies from the target directory
+COPY target/endor-java-webapp-demo.jar /app/webapps/
+COPY target/dependency/ /app/lib/
+
+# Copy the JAR file to Jetty's webapps directory
+RUN cp /app/webapps/endor-java-webapp-demo.jar $JETTY_HOME/webapps/
+
+# Copy dependencies to Jetty's lib directory
+RUN cp /app/lib/*.jar $JETTY_HOME/lib/
+
+# Expose Jetty's default port
+EXPOSE 8080
+
+# Create a startup script for Alpine Linux with manual Jetty installation
+RUN echo '#!/bin/sh' > /startup.sh && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> /startup.sh && \
+    echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /startup.sh && \
+    echo 'export JETTY_HOME=/opt/jetty' >> /startup.sh && \
+    echo 'export JETTY_BASE=/var/lib/jetty' >> /startup.sh && \
+    echo 'exec java -jar $JETTY_HOME/start.jar' >> /startup.sh && \
+    chmod +x /startup.sh
+
+# Start Jetty using the startup script
+CMD ["/startup.sh"]
