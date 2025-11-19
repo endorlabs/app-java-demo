@@ -58,7 +58,10 @@ public class OSCommandServlet extends HttpServlet {
                 }
                 process.waitFor();
             } catch (Exception e) {
-                out.println("<p style='color:red;'>Error executing command: " + e.getMessage() + "</p>");
+                // Log the actual error for debugging but show generic message to user
+                System.err.println("Error executing command: " + e.getMessage());
+                e.printStackTrace();
+                out.println("<p style='color:red;'>Error executing command. Please check your input.</p>");
             }
         }
     }
