@@ -67,6 +67,14 @@ public class XmlXXE extends HttpServlet {
             InputStream inStr = request.getPart("inputfile").getInputStream();
             byte byteArray[] = new byte[inStr.available()];
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            
+            // Secure XXE prevention
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
 
 //            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 //            System.out.println("Check the properties in the environment");
