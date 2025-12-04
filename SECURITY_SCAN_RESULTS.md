@@ -6,8 +6,8 @@ This document contains the security scan results for the app-java-demo repositor
 2025-12-04
 
 ## Scans Performed
-- ✅ Endor Labs Dependency Vulnerability Scan
-- ⚠️ CodeQL Security Analysis (requires code changes to trigger)
+- ✅ Endor Labs Dependency Vulnerability Scan - **COMPLETED**
+- ⚠️ CodeQL Security Analysis - **Note: CodeQL in this environment requires code changes to trigger analysis. For baseline code scanning, use GitHub's CodeQL workflow or CLI tools.**
 
 ## Summary
 The security scans identified **10 total vulnerabilities** across 3 dependencies.
