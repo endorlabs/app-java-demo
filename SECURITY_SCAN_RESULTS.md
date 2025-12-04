@@ -64,7 +64,7 @@ The security scans identified **10 total vulnerabilities** across 3 dependencies
 ### Suggested pom.xml Changes
 
 ```xml
-<!-- Update these dependencies in pom.xml -->
+<!-- Partial pom.xml snippet - update these dependencies in your existing pom.xml -->
 <dependencies>
     <!-- Update from 2.3 to 2.25.2 -->
     <dependency>
@@ -97,9 +97,9 @@ The security scans identified **10 total vulnerabilities** across 3 dependencies
 
 ## Tools Used
 
-- **Endor Labs MCP Server**: Used for dependency vulnerability scanning
+- **Endor Labs**: Used for dependency vulnerability scanning via the Endor Labs security platform
 - **GitHub Advisory Database**: Cross-referenced for vulnerability information
-- **CodeQL**: Available but requires code changes to perform analysis
+- **CodeQL**: GitHub's semantic code analysis engine (requires code changes to perform analysis)
 
 ## Next Steps
 
