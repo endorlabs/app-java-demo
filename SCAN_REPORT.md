@@ -9,11 +9,23 @@
 
 ## Scan Execution
 
-Attempted to run scan using:
-1. Endor Labs MCP server tools (`endor-labs-scan`)
-2. endorctl CLI (requires authentication)
+### Scan Attempts
 
-### Scan Command
+Multiple attempts were made to run the scan using:
+
+1. **Endor Labs MCP server tools** (`endor-labs-scan`)
+   - Status: ❌ Request timed out
+   - Attempted scan types: vulnerabilities, secrets, dependencies
+   - Note: MCP server experiencing timeout issues
+
+2. **endorctl CLI**
+   - Status: ⚠️ Requires authentication credentials
+   - Available at: `/usr/local/bin/endorctl`
+   - Requires: API key, API secret, and namespace
+
+### Scan Script
+
+A scan script has been created at `run-endor-scan.sh` that can be executed when authentication credentials are available:
 
 ```bash
 ./run-endor-scan.sh
