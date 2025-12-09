@@ -2,12 +2,14 @@
 
 # Endor Labs Vulnerability Scan Script
 # This script runs a comprehensive security scan using Endor Labs
+# Note: Currently configured for Endor Labs staging environment
 
 set -e
 
 # Configuration for endorctl download
 ENDORCTL_VERSION="${ENDORCTL_VERSION:-v1.7.688}"
-ENDORCTL_URL="https://api.staging.endorlabs.com/download/endorlabs/${ENDORCTL_VERSION}/binaries/endorctl_${ENDORCTL_VERSION}_linux_amd64"
+ENDORCTL_API_ENDPOINT="${ENDORCTL_API_ENDPOINT:-https://api.staging.endorlabs.com}"
+ENDORCTL_URL="${ENDORCTL_API_ENDPOINT}/download/endorlabs/${ENDORCTL_VERSION}/binaries/endorctl_${ENDORCTL_VERSION}_linux_amd64"
 ENDORCTL_SHA256="2dd5e32c21afc893d1229a1c6e9864ad82ce2d1bc2f8e6cbfe9f5acba7f461a9"
 
 # Check if endorctl is available, download if not
