@@ -1,0 +1,131 @@
+=================================================================================
+ENDOR LABS MCP SERVER SCAN TOOL - INVOCATION EXAMPLES
+=================================================================================
+
+This file documents the exact invocation format for the Endor Labs MCP server
+scan tool as used on the app-java-demo repository.
+
+---------------------------------------------------------------------------------
+FULL SCAN (All Scan Types)
+---------------------------------------------------------------------------------
+
+Tool: endor-labs-scan
+
+Parameters:
+{
+  "path": "/home/runner/work/app-java-demo/app-java-demo",
+  "scan_types": ["vulnerabilities", "secrets", "dependencies"]
+}
+
+Expected Output:
+- UUIDs of all findings (vulnerabilities, secrets, and dependency issues)
+- Finding attributes including severity, type, location, and description
+- Remediation recommendations
+
+---------------------------------------------------------------------------------
+VULNERABILITIES SCAN ONLY
+---------------------------------------------------------------------------------
+
+Tool: endor-labs-scan
+
+Parameters:
+{
+  "path": "/home/runner/work/app-java-demo/app-java-demo",
+  "scan_types": ["vulnerabilities"]
+}
+
+Expected Output:
+- Code-level security vulnerabilities in Java files
+- SQL injection, XSS, path traversal, etc.
+- Location and severity information
+
+---------------------------------------------------------------------------------
+SECRETS SCAN ONLY
+---------------------------------------------------------------------------------
+
+Tool: endor-labs-scan
+
+Parameters:
+{
+  "path": "/home/runner/work/app-java-demo/app-java-demo",
+  "scan_types": ["secrets"]
+}
+
+Expected Output:
+- Leaked credentials, API keys, tokens
+- Hardcoded passwords or sensitive data
+- File paths where secrets were found
+
+---------------------------------------------------------------------------------
+DEPENDENCIES SCAN ONLY
+---------------------------------------------------------------------------------
+
+Tool: endor-labs-scan
+
+Parameters:
+{
+  "path": "/home/runner/work/app-java-demo/app-java-demo",
+  "scan_types": ["dependencies"]
+}
+
+Expected Output:
+- Vulnerable dependencies from pom.xml
+- CVE identifiers for known vulnerabilities
+- Affected package versions and recommended updates
+
+---------------------------------------------------------------------------------
+FOLLOW-UP ACTIONS AFTER SCAN
+---------------------------------------------------------------------------------
+
+1. Retrieve Finding Details:
+   Tool: endor-labs-get_resource
+   Parameters:
+   {
+     "resource_type": "Finding",
+     "uuid": "<uuid-from-scan-results>"
+   }
+
+2. Check Specific Dependency:
+   Tool: endor-labs-check_dependency_for_vulnerabilities
+   Parameters:
+   {
+     "ecosystem": "maven",
+     "dependency_name": "org.apache.logging.log4j:log4j-core",
+     "version": "2.3"
+   }
+
+3. Get Vulnerability Information:
+   Tool: endor-labs-get_endor_vulnerability
+   Parameters:
+   {
+     "vuln_id": "CVE-2021-44228"
+   }
+
+=================================================================================
+REPOSITORY CONTEXT
+=================================================================================
+
+Path: /home/runner/work/app-java-demo/app-java-demo
+Type: Java Maven Project
+Files: 40 Java files
+Size: 2.6 MB
+Build Tool: Maven
+JDK: 1.8
+
+Key Dependencies to Scan:
+- org.apache.logging.log4j:log4j-core:2.3 (CRITICAL - known vulnerabilities)
+- mysql:mysql-connector-java:5.1.42 (HIGH - outdated version)
+- org.apache.commons:commons-text:1.9
+- javax.servlet:javax.servlet-api:3.1.0
+- com.mchange:c3p0:0.9.5.2
+- org.jboss.weld:weld-core:1.1.33.Final
+
+=================================================================================
+USAGE SCRIPTS AVAILABLE
+=================================================================================
+
+1. Shell Script: ./run-endor-scan.sh --all
+2. Python Script: python3 endor_scan.py --all
+3. Direct MCP Tool: Use parameters shown above
+
+=================================================================================
