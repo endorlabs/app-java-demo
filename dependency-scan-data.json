@@ -1,0 +1,205 @@
+{
+  "scan_metadata": {
+    "project": "endor-java-webapp-demo",
+    "source_file": "pom.xml",
+    "total_dependencies": 16,
+    "ecosystem": "maven",
+    "note": "This is template data for vulnerability scanning. Update scan_date when performing actual scans."
+  },
+  "dependencies": [
+    {
+      "groupId": "javax.servlet",
+      "artifactId": "javax.servlet-api",
+      "version": "3.1.0",
+      "ecosystem": "maven",
+      "full_name": "javax.servlet:javax.servlet-api",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.apache.commons",
+      "artifactId": "commons-text",
+      "version": "1.9",
+      "ecosystem": "maven",
+      "full_name": "org.apache.commons:commons-text",
+      "scope": "compile",
+      "risk_level": "HIGH",
+      "notes": "Known vulnerabilities in versions < 1.10"
+    },
+    {
+      "groupId": "mysql",
+      "artifactId": "mysql-connector-java",
+      "version": "5.1.42",
+      "ecosystem": "maven",
+      "full_name": "mysql:mysql-connector-java",
+      "scope": "compile",
+      "risk_level": "HIGH",
+      "notes": "Outdated version with potential vulnerabilities"
+    },
+    {
+      "groupId": "com.mchange",
+      "artifactId": "c3p0",
+      "version": "0.9.5.2",
+      "ecosystem": "maven",
+      "full_name": "com.mchange:c3p0",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.jboss.weld",
+      "artifactId": "weld-core",
+      "version": "1.1.33.Final",
+      "ecosystem": "maven",
+      "full_name": "org.jboss.weld:weld-core",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.apache.logging.log4j",
+      "artifactId": "log4j-core",
+      "version": "2.3",
+      "ecosystem": "maven",
+      "full_name": "org.apache.logging.log4j:log4j-core",
+      "scope": "test",
+      "risk_level": "CRITICAL",
+      "notes": "Affected by Log4Shell (CVE-2021-44228) and other critical CVEs. Upgrade to 2.17.1+ immediately",
+      "known_cves": [
+        "CVE-2021-44228",
+        "CVE-2021-45046",
+        "CVE-2021-45105",
+        "CVE-2021-44832"
+      ]
+    },
+    {
+      "groupId": "com.nqzero",
+      "artifactId": "permit-reflect",
+      "version": "0.3",
+      "ecosystem": "maven",
+      "full_name": "com.nqzero:permit-reflect",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.jboss.arquillian.config",
+      "artifactId": "arquillian-config-spi",
+      "version": "1.7.0.Alpha12",
+      "ecosystem": "maven",
+      "full_name": "org.jboss.arquillian.config:arquillian-config-spi",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.jboss.arquillian.container",
+      "artifactId": "arquillian-container-impl-base",
+      "version": "1.7.0.Alpha12",
+      "ecosystem": "maven",
+      "full_name": "org.jboss.arquillian.container:arquillian-container-impl-base",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.jboss.shrinkwrap.descriptors",
+      "artifactId": "shrinkwrap-descriptors-api-base",
+      "version": "2.0.0",
+      "ecosystem": "maven",
+      "full_name": "org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api-base",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.jboss.shrinkwrap",
+      "artifactId": "shrinkwrap-impl-base",
+      "version": "1.2.6",
+      "ecosystem": "maven",
+      "full_name": "org.jboss.shrinkwrap:shrinkwrap-impl-base",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.mockito",
+      "artifactId": "mockito-core",
+      "version": "2.28.2",
+      "ecosystem": "maven",
+      "full_name": "org.mockito:mockito-core",
+      "scope": "compile"
+    },
+    {
+      "groupId": "com.google.errorprone",
+      "artifactId": "error_prone_annotations",
+      "version": "2.7.1",
+      "ecosystem": "maven",
+      "full_name": "com.google.errorprone:error_prone_annotations",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.webjars.bowergithub.webcomponents",
+      "artifactId": "webcomponentsjs",
+      "version": "2.0.0-beta.3",
+      "ecosystem": "maven",
+      "full_name": "org.webjars.bowergithub.webcomponents:webcomponentsjs",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.webjars.bowergithub.webcomponents",
+      "artifactId": "shadycss",
+      "version": "1.9.1",
+      "ecosystem": "maven",
+      "full_name": "org.webjars.bowergithub.webcomponents:shadycss",
+      "scope": "compile"
+    },
+    {
+      "groupId": "org.semver",
+      "artifactId": "api",
+      "version": "0.9.33",
+      "ecosystem": "maven",
+      "full_name": "org.semver:api",
+      "scope": "compile"
+    }
+  ],
+  "scan_status": {
+    "endor_labs_mcp_attempts": "multiple",
+    "status": "failed",
+    "error": "MCP server timeout (Error -32001)",
+    "attempts": [
+      {
+        "tool": "check_dependency_for_vulnerabilities",
+        "format": "groupId:artifactId",
+        "result": "timeout"
+      },
+      {
+        "tool": "check_dependency_for_vulnerabilities",
+        "format": "artifactId only",
+        "result": "timeout"
+      },
+      {
+        "tool": "check_dependency_for_vulnerabilities",
+        "format": "groupId/artifactId",
+        "result": "timeout"
+      },
+      {
+        "tool": "endor-labs-scan",
+        "format": "full project scan",
+        "result": "timeout"
+      }
+    ]
+  },
+  "recommendations": {
+    "critical": [
+      {
+        "dependency": "org.apache.logging.log4j:log4j-core",
+        "current_version": "2.3",
+        "recommended_version": "2.17.1+",
+        "reason": "Multiple critical CVEs including Log4Shell",
+        "priority": "IMMEDIATE"
+      }
+    ],
+    "high": [
+      {
+        "dependency": "org.apache.commons:commons-text",
+        "current_version": "1.9",
+        "recommended_version": "1.10+",
+        "reason": "Known vulnerabilities in versions < 1.10",
+        "priority": "HIGH"
+      },
+      {
+        "dependency": "mysql:mysql-connector-java",
+        "current_version": "5.1.42",
+        "recommended_version": "8.0.x",
+        "reason": "Outdated version with potential security issues",
+        "priority": "HIGH"
+      }
+    ]
+  }
+}
