@@ -64,16 +64,17 @@ echo "## Dependencies Checked" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 echo "The following dependencies from pom.xml were identified for vulnerability scanning:" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
+echo "| # | Dependency | Version |" >> "$REPORT_FILE"
+echo "|---|------------|---------|" >> "$REPORT_FILE"
 
+counter=1
 for dep in "${DEPENDENCIES[@]}"; do
     IFS=':' read -ra PARTS <<< "$dep"
     GROUP_ARTIFACT="${PARTS[0]}:${PARTS[1]}"
     VERSION="${PARTS[2]}"
     
-    echo "| Dependency | Version |" >> "$REPORT_FILE"
-    echo "|------------|---------|" >> "$REPORT_FILE"
-    echo "| $GROUP_ARTIFACT | $VERSION |" >> "$REPORT_FILE"
-    echo "" >> "$REPORT_FILE"
+    echo "| $counter | $GROUP_ARTIFACT | $VERSION |" >> "$REPORT_FILE"
+    counter=$((counter + 1))
 done
 
 echo "" >> "$REPORT_FILE"

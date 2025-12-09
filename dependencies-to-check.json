@@ -100,7 +100,7 @@
   {
     "groupId": "org.webjars.bowergithub.webcomponents",
     "artifactId": "shadycss",
-    "version": "1.9.1 ",
+    "version": "1.9.1",
     "name": "org.webjars.bowergithub.webcomponents:shadycss",
     "ecosystem": "maven"
   },

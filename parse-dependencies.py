@@ -25,10 +25,10 @@ def parse_pom_dependencies(pom_file):
             
             if group_id is not None and artifact_id is not None and version is not None:
                 dependencies.append({
-                    'groupId': group_id.text,
-                    'artifactId': artifact_id.text,
-                    'version': version.text,
-                    'name': f"{group_id.text}:{artifact_id.text}",
+                    'groupId': group_id.text.strip(),
+                    'artifactId': artifact_id.text.strip(),
+                    'version': version.text.strip(),
+                    'name': f"{group_id.text.strip()}:{artifact_id.text.strip()}",
                     'ecosystem': 'maven'
                 })
         

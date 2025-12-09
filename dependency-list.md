@@ -20,7 +20,7 @@
 | 12 | org.mockito | mockito-core | 2.28.2 |
 | 13 | com.google.errorprone | error_prone_annotations | 2.7.1 |
 | 14 | org.webjars.bowergithub.webcomponents | webcomponentsjs | 2.0.0-beta.3 |
-| 15 | org.webjars.bowergithub.webcomponents | shadycss | 1.9.1  |
+| 15 | org.webjars.bowergithub.webcomponents | shadycss | 1.9.1 |
 | 16 | org.semver | api | 0.9.33 |
 
 ## Usage with endor-labs MCP Server
