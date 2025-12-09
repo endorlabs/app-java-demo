@@ -2,9 +2,6 @@
 
 ## Task: Run a scan with endor-labs MCP server on pom.xml
 
-### Execution Date
-2025-12-09T22:41:54.792Z
-
 ### Objective
 Use the `check_dependency_for_vulnerabilities` tool from the endor-labs MCP server to scan all dependencies listed in pom.xml for known security vulnerabilities.
 

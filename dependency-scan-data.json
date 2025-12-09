@@ -1,10 +1,10 @@
 {
   "scan_metadata": {
-    "scan_date": "2025-12-09",
     "project": "endor-java-webapp-demo",
     "source_file": "pom.xml",
     "total_dependencies": 16,
-    "ecosystem": "maven"
+    "ecosystem": "maven",
+    "note": "This is template data for vulnerability scanning. Update scan_date when performing actual scans."
   },
   "dependencies": [
     {
