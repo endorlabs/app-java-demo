@@ -5,7 +5,7 @@
 
 set -e
 
-REPO_PATH="/home/runner/work/app-java-demo/app-java-demo"
+REPO_PATH="${REPO_PATH:-$(cd "$(dirname "$0")" && pwd)}"
 NAMESPACE="${ENDOR_NAMESPACE:-release-test}"
 
 echo "=========================================="
@@ -36,7 +36,7 @@ echo ""
 # Note: This requires proper authentication credentials to be set
 # via environment variables or command-line flags:
 # - ENDOR_API or --api
-# - ENDOR_API_KEY or --api-key  
+# - ENDOR_API_KEY or --api-key
 # - ENDOR_API_SECRET or --api-secret
 # - ENDOR_NAMESPACE or --namespace
 
@@ -45,6 +45,7 @@ endorctl scan \
     --namespace "$NAMESPACE" \
     --dependencies \
     --secrets \
+    --ghactions \
     --output-type summary
 
 echo ""
