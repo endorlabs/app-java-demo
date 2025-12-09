@@ -31,9 +31,3 @@ jobs:
         with:
           distribution: 'microsoft'
           java-version: '17'
-      - name: Setup endorctl
-        run: |
-          curl https://api.staging.endorlabs.com/download/endorlabs/v1.7.688/binaries/endorctl_v1.7.688_linux_amd64 -o endorctl
-          echo "2dd5e32c21afc893d1229a1c6e9864ad82ce2d1bc2f8e6cbfe9f5acba7f461a9 endorctl" | sha256sum --check
-          chmod +x ./endorctl
-          alias endorctl="$PWD/endorctl"
