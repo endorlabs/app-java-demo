@@ -232,9 +232,37 @@ The issue **is related to**:
 - Long-running operation handling in the MCP framework
 - Lack of configurable timeout values for specific tools
 
+## Workaround Testing
+
+### Endorctl CLI Availability
+- **CLI Version:** v1.7.704 ✅ Available
+- **Location:** `/usr/local/bin/endorctl`
+
+### Credential Access Limitation
+The endorctl CLI **cannot be used as a workaround** because:
+- Credentials are configured as `COPILOT_AGENT_INJECTED_SECRET_NAMES`
+- These secrets are only accessible to the MCP server process
+- Direct environment variable access is blocked for security
+- The CLI requires `--api-key`, `--api-secret`, and `--namespace` flags
+
+### Why Direct CLI Doesn't Work
+```bash
+# These environment variables exist but are not accessible:
+# - COPILOT_MCP_ENDOR_API_CREDENTIALS_KEY (injected secret)
+# - COPILOT_MCP_ENDOR_API_CREDENTIALS_SECRET (injected secret)
+# - COPILOT_MCP_ENDOR_NAMESPACE (injected secret)
+
+# Without credentials, the CLI cannot authenticate:
+endorctl scan --path /home/runner/work/app-java-demo/app-java-demo
+# Would fail: "Error: api-key and api-secret are required"
+```
+
+**Conclusion:** The MCP server is the **only** way to access Endor Labs functionality in this environment. Direct CLI usage is blocked by credential isolation.
+
 ## Next Steps
 
 1. ✅ Document findings in this report
-2. ⏳ Escalate to GitHub Copilot team for timeout configuration
-3. ⏳ Request MCP framework enhancement for long-running operations
-4. ⏳ Test workaround using direct endorctl CLI calls (if permitted)
+2. ✅ Test workaround options (CLI blocked by credential isolation)
+3. ⏳ **CRITICAL:** Escalate to GitHub Copilot team for timeout configuration
+4. ⏳ Request MCP framework enhancement for long-running operations
+5. ⏳ Consider implementing async scan pattern in MCP server
