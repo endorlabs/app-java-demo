@@ -11,7 +11,9 @@ echo "This script identifies all Maven dependencies from pom.xml that should"
 echo "be checked for vulnerabilities using the endor-labs MCP server."
 echo ""
 
-POM_FILE="/home/runner/work/app-java-demo/app-java-demo/pom.xml"
+# Determine the script's directory and find pom.xml relative to it
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+POM_FILE="$SCRIPT_DIR/pom.xml"
 
 if [ ! -f "$POM_FILE" ]; then
     echo "ERROR: pom.xml not found at $POM_FILE"
