@@ -1,0 +1,6 @@
+{
+  "logLevel": "debug",
+  "mcp": {
+    "logLevel": "debug"
+  }
+}
