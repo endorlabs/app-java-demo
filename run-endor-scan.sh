@@ -4,8 +4,8 @@
 # This script runs security scans using the Endor Labs MCP server
 #
 
-# Repository path
-REPO_PATH="/home/runner/work/app-java-demo/app-java-demo"
+# Repository path - defaults to current directory, can be overridden with REPO_PATH env var
+REPO_PATH="${REPO_PATH:-$(cd "$(dirname "$0")" && pwd)}"
 
 # Color codes for output
 GREEN='\033[0;32m'

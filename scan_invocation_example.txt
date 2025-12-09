@@ -9,6 +9,9 @@ scan tool as used on the app-java-demo repository.
 FULL SCAN (All Scan Types)
 ---------------------------------------------------------------------------------
 
+Note: Replace the path with your actual repository path if different from the
+      CI/CD environment path shown below.
+
 Tool: endor-labs-scan
 
 Parameters:

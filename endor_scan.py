@@ -118,8 +118,9 @@ class EndorLabsScanner:
 
 def main():
     """Main execution function."""
-    # Repository path
-    repo_path = "/home/runner/work/app-java-demo/app-java-demo"
+    # Repository path - defaults to current directory, can be overridden with env var
+    import os
+    repo_path = os.environ.get('REPO_PATH', os.getcwd())
     
     # Create scanner instance
     scanner = EndorLabsScanner(repo_path)

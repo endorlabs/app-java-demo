@@ -207,25 +207,25 @@ Parameters:
 Priority dependency updates to address known vulnerabilities:
 
 ```xml
-<!-- Update log4j-core from 2.3 to latest -->
+<!-- Update log4j-core from 2.3 to latest stable version -->
 <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-core</artifactId>
-    <version>2.20.0</version> <!-- or latest -->
+    <version>[latest stable version]</version>
 </dependency>
 
-<!-- Update mysql-connector-java from 5.1.42 to latest -->
+<!-- Update mysql-connector-java from 5.1.42 to latest stable version -->
 <dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.33</version> <!-- or latest -->
+    <version>[latest stable version]</version>
 </dependency>
 
-<!-- Update commons-text from 1.9 to latest -->
+<!-- Update commons-text from 1.9 to latest stable version -->
 <dependency>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-text</artifactId>
-    <version>1.10.0</version> <!-- or latest -->
+    <version>[latest stable version]</version>
 </dependency>
 ```
 
