@@ -352,9 +352,12 @@ XDG_CONFIG_HOME=/home/runner/.config
 - ✅ GitHub Actions integration fully configured
 
 ### Potential Issues
-- ⚠️ Endor MCP service experiencing timeout issues (as of report generation)
-- ⚠️ Repository contains outdated dependencies with known vulnerabilities
-- ℹ️ Java 8 target in pom.xml while Java 17 is available in environment
+- ⚠️ **Endor MCP Service Timeout:** The service is experiencing timeout issues as of report generation. This may be temporary or indicate connectivity/service availability problems.
+- ⚠️ **Critical Dependency Vulnerabilities:**
+  - log4j-core v2.3: Affected by CVE-2021-44228 (Log4Shell), CVE-2021-45046, CVE-2021-45105, CVE-2021-44832
+  - mysql-connector-java v5.1.42: Multiple known CVEs including SQL injection and authentication bypass vulnerabilities
+  - Other outdated dependencies may contain undiscovered vulnerabilities
+- ℹ️ **Java Version Mismatch:** Project targets Java 8 in pom.xml (maven.compiler.target=1.8) while Java 17 is available in the runner environment. This may limit access to newer security features and performance improvements, though it provides backward compatibility.
 
 ---
 
