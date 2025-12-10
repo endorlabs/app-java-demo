@@ -26,16 +26,18 @@ Multiple scan attempts failed with MCP timeout errors:
 
 ## MCP Server Status
 The endorctl MCP server is running correctly:
-- Process ID: 2372
-- Command: `endorctl ai-tools mcp-server`
-- Configuration file: `/home/runner/work/_temp/mcp-server/mcp-config.json`
-- Server logs indicate the service is active and responding
+- **Process ID**: 2372
+- **Command**: `endorctl ai-tools mcp-server`
+- **Configuration file**: `/home/runner/work/_temp/mcp-server/mcp-config.json`
+- **Network Ports**: Listening on 127.0.0.1:39075 and 127.0.0.1:30000
+- **Server logs**: Service is active and responding to requests
 
 ## Issue Analysis
 The timeout errors suggest that:
-1. The scan operation takes longer than the MCP request timeout allows
-2. The repository may be large or complex, requiring extended scan time
-3. Network or API latency may be contributing to the timeout
+1. **MCP Request Timeout**: The scan operation takes longer than the MCP request timeout allows (likely 30-60 seconds)
+2. **Repository Complexity**: The Java Maven project with 40+ source files and multiple third-party dependencies requires extended scan time
+3. **Scan Operations**: All three scan types (vulnerabilities, secrets, dependencies) timeout individually, indicating each requires significant processing time
+4. **Network/API**: Possible latency when communicating with Endor Labs API endpoints
 
 ## Recommendations
 1. Increase the MCP request timeout threshold
