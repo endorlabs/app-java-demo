@@ -338,9 +338,13 @@ public class AsyncServlet extends HttpServlet {
         StringBuffer sbuf = new StringBuffer();
 
         Connection conn = null;
-        String db = "jdbc:hsqldb:hsql://localhost/xdb";
-        String user = "SA";
-        String password = "";
+        String db = System.getProperty("endor_hsqldb_url", "jdbc:hsqldb:hsql://localhost/xdb");
+        String user = System.getProperty("endor_hsqldb_user", "SA");
+        String password = System.getProperty("endor_hsqldb_password");
+
+        if (password == null) {
+            return "ERROR: Database password must be provided via endor_hsqldb_password system property";
+        }
 
         try {
             // Create database connection

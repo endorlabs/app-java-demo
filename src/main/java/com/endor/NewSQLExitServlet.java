@@ -29,9 +29,18 @@ public class NewSQLExitServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        connectionUrl =System.getProperty("endor_connection_url", "jdbc:oracle:thin:@10.0.22.108:1521:XE");
-        dbUser =System.getProperty("endor_db_user", "sys as sysdba");
-        dbPassword =System.getProperty("endor_db_password", "Psmo0601");
+        connectionUrl =System.getProperty("endor_connection_url");
+        if (connectionUrl == null) {
+            throw new ServletException("Database connection URL must be provided via endor_connection_url system property");
+        }
+        dbUser =System.getProperty("endor_db_user");
+        if (dbUser == null) {
+            throw new ServletException("Database user must be provided via endor_db_user system property");
+        }
+        dbPassword =System.getProperty("endor_db_password");
+        if (dbPassword == null || dbPassword.isEmpty()) {
+            throw new ServletException("Database password must be provided via endor_db_password system property");
+        }
         dbType =System.getProperty("endor_db_type", DB_TYPE_ORACLE);
 
     }
@@ -147,19 +156,24 @@ public class NewSQLExitServlet extends HttpServlet {
         return hasResults;
     }
 
-    /** Shiva use the following java system properties instead of new connection function.
+    /** Use the following java system properties for connection.
         -Dendor_connection_url="jdbc:postgresql://localhost:5432/sqlinject?sslmode=disable"
         -Dendor_db_user="postgres"
-        -Dendor_db_password=""Psqlpsmo@1"
+        -Dendor_db_password="<your-password>"
         -Dendor_db_type="Postgress"
      */
     private Connection connectpsql() {
         Connection conn = null;
         try {
-            // Create database connection
-            String dbURL = "jdbc:postgresql://localhost:5432/sqlinject?sslmode=disable";
-            String user = "postgres";
-            String password = "Psqlpsmo@1";
+            // Create database connection using system properties
+            String dbURL = System.getProperty("endor_connection_url");
+            String user = System.getProperty("endor_db_user");
+            String password = System.getProperty("endor_db_password");
+            
+            if (dbURL == null || user == null || password == null || password.isEmpty()) {
+                throw new IllegalStateException("Database credentials must be provided via system properties");
+            }
+            
             conn = DriverManager.getConnection(dbURL, user, password);
             System.out.println("DB Connection established");
         } catch (Exception e) {
