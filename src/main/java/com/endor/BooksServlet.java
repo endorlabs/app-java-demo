@@ -562,7 +562,11 @@ public class BooksServlet extends HttpServlet {
 		      String user = System.getProperty("db.user", "postgres");
 		      String password = System.getenv("DB_PASSWORD");
 		      if (password == null || password.isEmpty()) {
-		          password = System.getProperty("db.password", "");
+		          password = System.getProperty("db.password");
+		          if (password == null || password.isEmpty()) {
+		              System.err.println("ERROR: DB_PASSWORD environment variable or db.password system property must be set");
+		              throw new IllegalStateException("Database password not configured");
+		          }
 		      }
 			  conn = DriverManager.getConnection(dbURL, user, password);
 			  System.out.println("DB Connection established");
