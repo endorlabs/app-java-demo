@@ -318,12 +318,17 @@ public class AsyncServlet extends HttpServlet {
         Connection conn = null;
         boolean retval = false;
         try {
-            // Create database connection
+            // Create database connection using system properties
             System.out.println("Oracle JDBC Driver Loaded");
             System.out.println("Oracle Connecting..");
-            String nameForConnect = "sys as sysdba";
-            String pass1 = "Psmo0601";
-            String url = "jdbc:oracle:thin:@10.0.22.108:1521:XE";
+            String nameForConnect = System.getProperty("endor_db_user");
+            String pass1 = System.getProperty("endor_db_password");
+            String url = System.getProperty("endor_connection_url");
+            
+            if (url == null || nameForConnect == null || pass1 == null || pass1.isEmpty()) {
+                throw new IllegalStateException("Database credentials must be provided via system properties");
+            }
+            
             conn = DriverManager.getConnection(url, nameForConnect, pass1);
             System.out.println("Oracle Connected");
         } catch (Exception e) {
