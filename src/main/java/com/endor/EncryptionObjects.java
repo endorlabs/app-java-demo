@@ -16,8 +16,11 @@ public class EncryptionObjects {
     static void init() {
         try {
             md = MessageDigest.getInstance("SHA-512");
-            c = Cipher.getInstance("DESede");
+            // Security fix: Use AES/GCM instead of weak DESede/Triple DES
+            c = Cipher.getInstance("AES/GCM/NoPadding");
             sr = SecureRandom.getInstance("SHA1PRNG");
+            // Security note: For cryptographic operations, use SecureRandom (sr) instead of Random (r)
+            // r is kept for backwards compatibility with non-cryptographic use cases
             r = new Random();
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             e.printStackTrace();

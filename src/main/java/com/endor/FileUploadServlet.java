@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,8 +84,10 @@ public class FileUploadServlet extends HttpServlet {
         LOGGER.log(Level.INFO, "Part Header = {0}", partHeader);
         for (String content : part.getHeader("content-disposition").split(";")) {
             if (content.trim().startsWith("filename")) {
-                return content.substring(
+                String filename = content.substring(
                         content.indexOf('=') + 1).trim().replace("\"", "");
+                // Security fix: Sanitize filename to prevent path traversal
+                return Paths.get(filename).getFileName().toString();
             }
         }
         return null;

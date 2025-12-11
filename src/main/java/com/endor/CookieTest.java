@@ -40,12 +40,13 @@ public class CookieTest extends HttpServlet {
         out.println("<br/>");
 
         // Set-Cookie: addCookie2=NotSecure_HttpOnly; Path=/; HttpOnly
+        // Security fix: Set Secure flag to protect cookie over HTTPS
         Cookie notSecure_HttpOnlyCookie = new Cookie("addCookie2", "NotSecure_HttpOnly");
         notSecure_HttpOnlyCookie.setPath("/");
         notSecure_HttpOnlyCookie.setHttpOnly(true);
-        notSecure_HttpOnlyCookie.setSecure(false);
+        notSecure_HttpOnlyCookie.setSecure(true); // Fixed: changed from false to true
         response.addCookie(notSecure_HttpOnlyCookie);
-        out.println(++count + ". addCookie2=NotSecure_HttpOnly; Path=/; HttpOnly");
+        out.println(++count + ". addCookie2=NotSecure_HttpOnly; Path=/; HttpOnly; Secure");
         out.println("<br/>");
 
         // Set-Cookie: addCookie3=Secure_NotHttpOnly; Path=/; Secure;
@@ -58,12 +59,13 @@ public class CookieTest extends HttpServlet {
         out.println("<br/>");
 
         // Set-Cookie: addCookie4=NotSecure_NotHttpOnly; Path=/;
+        // Security fix: Set both Secure and HttpOnly flags
         Cookie notSecure_NotHttpOnlyCookie = new Cookie("addCookie4", "NotSecure_NotHttpOnly");
         notSecure_NotHttpOnlyCookie.setPath("/");
-        notSecure_NotHttpOnlyCookie.setHttpOnly(false);
-        notSecure_NotHttpOnlyCookie.setSecure(false);
+        notSecure_NotHttpOnlyCookie.setHttpOnly(true); // Fixed: changed from false to true
+        notSecure_NotHttpOnlyCookie.setSecure(true); // Fixed: changed from false to true
         response.addCookie(notSecure_NotHttpOnlyCookie);
-        out.println(++count + ". addCookie4=NotSecure_NotHttpOnly; Path=/;");
+        out.println(++count + ". addCookie4=NotSecure_NotHttpOnly; Path=/; Secure; HttpOnly");
         out.println("<br/>");
 
         out.println("<br/>");
@@ -80,8 +82,9 @@ public class CookieTest extends HttpServlet {
         out.println("<br/>");
 
         // Set-Cookie: addCookie2=NotSecure_HttpOnly; Path=/; HttpOnly
-        response.addHeader("set-cookie","addHeaderCookie2=NotSecure_HttpOnly; Path=/; HttpOnly");
-        out.println(++count + ". addHeaderCookie2=NotSecure_HttpOnly; Path=/; HttpOnly");
+        // Security fix: Set Secure flag to protect cookie over HTTPS
+        response.addHeader("set-cookie","addHeaderCookie2=NotSecure_HttpOnly; Path=/; HttpOnly; Secure");
+        out.println(++count + ". addHeaderCookie2=NotSecure_HttpOnly; Path=/; HttpOnly; Secure");
         out.println("<br/>");
 
         // Set-Cookie: addCookie3=Secure_NotHttpOnly; Path=/; Secure;
@@ -90,8 +93,9 @@ public class CookieTest extends HttpServlet {
         out.println("<br/>");
 
         // Set-Cookie: addCookie4=NotSecure_NotHttpOnly; Path=/;
-        response.addHeader("set-cookie","addHeaderCookie4=NotSecure_NotHttpOnly; Path=/;");
-        out.println(++count + ". addHeaderCookie4=NotSecure_NotHttpOnly; Path=/;");
+        // Security fix: Set both Secure and HttpOnly flags
+        response.addHeader("set-cookie","addHeaderCookie4=NotSecure_NotHttpOnly; Path=/; Secure; HttpOnly");
+        out.println(++count + ". addHeaderCookie4=NotSecure_NotHttpOnly; Path=/; Secure; HttpOnly");
         out.println("<br/>");
 
         out.println("</body>");
