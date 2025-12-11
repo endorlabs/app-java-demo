@@ -347,6 +347,7 @@ public class AsyncServlet extends HttpServlet {
         String user = System.getProperty("endor_hsqldb_user", "SA");
         String password = System.getProperty("endor_hsqldb_password");
 
+        // Return error string instead of throwing exception to match method signature
         if (password == null) {
             return "ERROR: Database password must be provided via endor_hsqldb_password system property";
         }
