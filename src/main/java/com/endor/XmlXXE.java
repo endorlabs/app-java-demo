@@ -67,31 +67,16 @@ public class XmlXXE extends HttpServlet {
             InputStream inStr = request.getPart("inputfile").getInputStream();
             byte byteArray[] = new byte[inStr.available()];
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-//            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-//            System.out.println("Check the properties in the environment");
-//            System.out.println("javax.xml.accessExternalSchema - " + System.getProperty("javax.xml.accessExternalSchema"));
-//            System.out.println("javax.xml.accessExternalDTD - " + System.getProperty("javax.xml.accessExternalDTD"));
-
-//            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-//            System.out.println("Set the properties in the environment");
-//            System.setProperty("javax.xml.accessExternalSchema", "http");
-//            System.setProperty("javax.xml.accessExternalDTD", "http");
-
-//            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-//            System.out.println("Check the properties in the environment");
-//            System.out.println("javax.xml.accessExternalSchema - " + System.getProperty("javax.xml.accessExternalSchema"));
-//            System.out.println("javax.xml.accessExternalDTD - " + System.getProperty("javax.xml.accessExternalDTD"));
-//
-//            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-//            System.out.println("Check the properties in the DocumentBuilderFactory.getAttribute method");
-//            System.out.println("XMLConstants.ACCESS_EXTERNAL_SCHEMA - " + factory.getAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA));
-//            System.out.println("XMLConstants.ACCESS_EXTERNAL_DTD - " + factory.getAttribute(XMLConstants.ACCESS_EXTERNAL_DTD));
-
-//            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
-//            System.out.println("Set the properties in the DocumentBuilderFactory.setAttribute method");
-//            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-//            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            
+            // Security fix: Disable XXE (XML External Entity) processing
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
             System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
             System.out.println("Check the properties in the environment");

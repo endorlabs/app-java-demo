@@ -157,9 +157,13 @@ public class NewSQLExitServlet extends HttpServlet {
         Connection conn = null;
         try {
             // Create database connection
-            String dbURL = "jdbc:postgresql://localhost:5432/sqlinject?sslmode=disable";
-            String user = "postgres";
-            String password = "Psqlpsmo@1";
+            // Security fix: Use environment variable instead of hardcoded password
+            String dbURL = System.getProperty("db.url", "jdbc:postgresql://localhost:5432/sqlinject?sslmode=disable");
+            String user = System.getProperty("db.user", "postgres");
+            String password = System.getenv("DB_PASSWORD");
+            if (password == null || password.isEmpty()) {
+                password = System.getProperty("db.password", "");
+            }
             conn = DriverManager.getConnection(dbURL, user, password);
             System.out.println("DB Connection established");
         } catch (Exception e) {
