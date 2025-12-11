@@ -31,9 +31,18 @@ public class RecordServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        connectionUrl =System.getProperty("endor_connection_url", "jdbc:oracle:thin:@10.0.22.108:1521:XE");
-        dbUser =System.getProperty("endor_db_user", "sys as sysdba");
-        dbPassword =System.getProperty("endor_db_password", "Psmo0601");
+        connectionUrl =System.getProperty("endor_connection_url");
+        if (connectionUrl == null) {
+            throw new ServletException("Database connection URL must be provided via endor_connection_url system property");
+        }
+        dbUser =System.getProperty("endor_db_user");
+        if (dbUser == null) {
+            throw new ServletException("Database user must be provided via endor_db_user system property");
+        }
+        dbPassword =System.getProperty("endor_db_password");
+        if (dbPassword == null || dbPassword.isEmpty()) {
+            throw new ServletException("Database password must be provided via endor_db_password system property");
+        }
         dbType =System.getProperty("endor_db_type", DB_TYPE_ORACLE);
     }
 

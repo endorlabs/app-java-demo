@@ -318,12 +318,17 @@ public class AsyncServlet extends HttpServlet {
         Connection conn = null;
         boolean retval = false;
         try {
-            // Create database connection
+            // Create database connection using system properties
             System.out.println("Oracle JDBC Driver Loaded");
             System.out.println("Oracle Connecting..");
-            String nameForConnect = "sys as sysdba";
-            String pass1 = "Psmo0601";
-            String url = "jdbc:oracle:thin:@10.0.22.108:1521:XE";
+            String nameForConnect = System.getProperty("endor_db_user");
+            String pass1 = System.getProperty("endor_db_password");
+            String url = System.getProperty("endor_connection_url");
+            
+            if (url == null || nameForConnect == null || pass1 == null || pass1.isEmpty()) {
+                throw new IllegalStateException("Database credentials must be provided via system properties");
+            }
+            
             conn = DriverManager.getConnection(url, nameForConnect, pass1);
             System.out.println("Oracle Connected");
         } catch (Exception e) {
@@ -338,9 +343,14 @@ public class AsyncServlet extends HttpServlet {
         StringBuffer sbuf = new StringBuffer();
 
         Connection conn = null;
-        String db = "jdbc:hsqldb:hsql://localhost/xdb";
-        String user = "SA";
-        String password = "";
+        String db = System.getProperty("endor_hsqldb_url", "jdbc:hsqldb:hsql://localhost/xdb");
+        String user = System.getProperty("endor_hsqldb_user", "SA");
+        String password = System.getProperty("endor_hsqldb_password");
+
+        // Return error string instead of throwing exception to match method signature
+        if (password == null) {
+            return "ERROR: Database password must be provided via endor_hsqldb_password system property";
+        }
 
         try {
             // Create database connection
