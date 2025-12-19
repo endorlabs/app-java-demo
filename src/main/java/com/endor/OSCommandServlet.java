@@ -49,7 +49,9 @@ public class OSCommandServlet extends HttpServlet {
                 out.println("<p style='color:orange;'>Warning: Command execution is inherently dangerous and should be avoided in production applications.</p>");
                 out.println("<p>Command executed (with validation)</p>");
             } catch (Exception e) {
-                out.println("<p style='color:red;'>Error executing command: " + e.getMessage() + "</p>");
+                // Security fix: Don't expose detailed error messages to users
+                out.println("<p style='color:red;'>Error executing command. Please contact system administrator.</p>");
+                System.err.println("Command execution error: " + e.getMessage());
             }
         }
     }
