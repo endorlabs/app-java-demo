@@ -92,7 +92,40 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
             response.getWriter().println("Inside Url.openStream");
             String url  = "https://www.oracle.com/";
             if (ssrfURL != null && ssrfURL.length() > 0) {
-                url = ssrfURL;
+                // Security fix: Validate URL to prevent SSRF attacks
+                try {
+                    URL parsedUrl = new URL(ssrfURL);
+                    String protocol = parsedUrl.getProtocol();
+                    String host = parsedUrl.getHost();
+                    
+                    // Only allow HTTPS protocol
+                    if (!"https".equals(protocol)) {
+                        response.getWriter().println("<p style='color:red;'>Error: Only HTTPS URLs are allowed for security reasons.</p>");
+                        return;
+                    }
+                    
+                    // Prevent access to internal/private networks (basic check)
+                    if (host.startsWith("localhost") || host.startsWith("127.") || 
+                        host.startsWith("192.168.") || host.startsWith("10.") ||
+                        host.startsWith("172.16.") || host.startsWith("172.17.") ||
+                        host.startsWith("172.18.") || host.startsWith("172.19.") ||
+                        host.startsWith("172.20.") || host.startsWith("172.21.") ||
+                        host.startsWith("172.22.") || host.startsWith("172.23.") ||
+                        host.startsWith("172.24.") || host.startsWith("172.25.") ||
+                        host.startsWith("172.26.") || host.startsWith("172.27.") ||
+                        host.startsWith("172.28.") || host.startsWith("172.29.") ||
+                        host.startsWith("172.30.") || host.startsWith("172.31.") ||
+                        host.contains("metadata") || host.contains("169.254")) {
+                        response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
+                        return;
+                    }
+                    
+                    // Use validated URL
+                    url = ssrfURL;
+                } catch (Exception e) {
+                    response.getWriter().println("<p style='color:red;'>Error: Invalid URL format.</p>");
+                    return;
+                }
             }
             URL oracle = new URL(url);
 
@@ -121,6 +154,29 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
         
         String UrlToOpen = ssrfURL.replaceFirst("HTTPS://", "");
         UrlToOpen = UrlToOpen.replaceFirst("https://", "");
+        
+        // Security fix: Validate hostname to prevent SSRF attacks
+        // Prevent access to internal/private networks
+        if (UrlToOpen.startsWith("localhost") || UrlToOpen.startsWith("127.") || 
+            UrlToOpen.startsWith("192.168.") || UrlToOpen.startsWith("10.") ||
+            UrlToOpen.startsWith("172.16.") || UrlToOpen.startsWith("172.17.") ||
+            UrlToOpen.startsWith("172.18.") || UrlToOpen.startsWith("172.19.") ||
+            UrlToOpen.startsWith("172.20.") || UrlToOpen.startsWith("172.21.") ||
+            UrlToOpen.startsWith("172.22.") || UrlToOpen.startsWith("172.23.") ||
+            UrlToOpen.startsWith("172.24.") || UrlToOpen.startsWith("172.25.") ||
+            UrlToOpen.startsWith("172.26.") || UrlToOpen.startsWith("172.27.") ||
+            UrlToOpen.startsWith("172.28.") || UrlToOpen.startsWith("172.29.") ||
+            UrlToOpen.startsWith("172.30.") || UrlToOpen.startsWith("172.31.") ||
+            UrlToOpen.contains("metadata") || UrlToOpen.contains("169.254")) {
+            response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
+            return;
+        }
+        
+        // Validate that the hostname doesn't contain suspicious characters
+        if (!UrlToOpen.matches("[a-zA-Z0-9\\-\\.]+")) {
+            response.getWriter().println("<p style='color:red;'>Error: Invalid hostname format.</p>");
+            return;
+        }
         
         try {
         	System.out.printf("Opening SSL socket for host : %s\n", UrlToOpen);

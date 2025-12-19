@@ -32,7 +32,25 @@ public class OSCommandServlet extends HttpServlet {
         out.println(form);
 
         String command = request.getParameter("command");
-        String find = "find " + command;
-        Runtime.getRuntime().exec(find);
+        
+        // Security fix: Validate and sanitize input to prevent command injection
+        if (command != null && !command.isEmpty()) {
+            // Only allow alphanumeric characters, spaces, dots, slashes and hyphens for file paths
+            if (!command.matches("[a-zA-Z0-9\\s\\-_./]+")) {
+                out.println("<p style='color:red;'>Error: Invalid file path. Only alphanumeric characters, spaces, dots, slashes, hyphens and underscores are allowed.</p>");
+                return;
+            }
+            
+            // Use ProcessBuilder for safer command execution with explicit arguments
+            try {
+                ProcessBuilder pb = new ProcessBuilder("find", command);
+                pb.redirectErrorStream(true);
+                Process process = pb.start();
+                out.println("<p style='color:orange;'>Warning: Command execution is inherently dangerous and should be avoided in production applications.</p>");
+                out.println("<p>Command executed (with validation)</p>");
+            } catch (Exception e) {
+                out.println("<p style='color:red;'>Error executing command: " + e.getMessage() + "</p>");
+            }
+        }
     }
 }
