@@ -8,12 +8,51 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 @javax.servlet.annotation.WebServlet(name = "AppServlet", urlPatterns = "/AppServlet")
 public class AppServlet extends javax.servlet.http.HttpServlet {
+    
+    // Helper method to check if a host is an internal/private address
+    private boolean isInternalAddress(String host) {
+        if (host == null || host.isEmpty()) {
+            return false;
+        }
+        
+        // Check for obvious internal addresses
+        if (host.startsWith("localhost") || host.startsWith("127.") || 
+            host.contains("metadata") || host.contains("169.254")) {
+            return true;
+        }
+        
+        // Check for private IP ranges
+        if (host.startsWith("192.168.") || host.startsWith("10.")) {
+            return true;
+        }
+        
+        // Check for 172.16.0.0 - 172.31.255.255 range
+        if (host.startsWith("172.")) {
+            String[] parts = host.split("\\.");
+            if (parts.length >= 2) {
+                try {
+                    int secondOctet = Integer.parseInt(parts[1]);
+                    if (secondOctet >= 16 && secondOctet <= 31) {
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid format, treat as potentially dangerous
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     protected void doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         doGet(request, response);
     }
@@ -92,7 +131,30 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
             response.getWriter().println("Inside Url.openStream");
             String url  = "https://www.oracle.com/";
             if (ssrfURL != null && ssrfURL.length() > 0) {
-                url = ssrfURL;
+                // Security fix: Validate URL to prevent SSRF attacks
+                try {
+                    URL parsedUrl = new URL(ssrfURL);
+                    String protocol = parsedUrl.getProtocol();
+                    String host = parsedUrl.getHost();
+                    
+                    // Only allow HTTPS protocol
+                    if (!"https".equals(protocol)) {
+                        response.getWriter().println("<p style='color:red;'>Error: Only HTTPS URLs are allowed for security reasons.</p>");
+                        return;
+                    }
+                    
+                    // Prevent access to internal/private networks using helper method
+                    if (isInternalAddress(host)) {
+                        response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
+                        return;
+                    }
+                    
+                    // Use validated URL
+                    url = ssrfURL;
+                } catch (Exception e) {
+                    response.getWriter().println("<p style='color:red;'>Error: Invalid URL format.</p>");
+                    return;
+                }
             }
             URL oracle = new URL(url);
 
@@ -121,6 +183,18 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
         
         String UrlToOpen = ssrfURL.replaceFirst("HTTPS://", "");
         UrlToOpen = UrlToOpen.replaceFirst("https://", "");
+        
+        // Security fix: Validate hostname to prevent SSRF attacks using helper method
+        if (isInternalAddress(UrlToOpen)) {
+            response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
+            return;
+        }
+        
+        // Validate that the hostname doesn't contain suspicious characters
+        if (!UrlToOpen.matches("[a-zA-Z0-9\\-\\.]+")) {
+            response.getWriter().println("<p style='color:red;'>Error: Invalid hostname format.</p>");
+            return;
+        }
         
         try {
         	System.out.printf("Opening SSL socket for host : %s\n", UrlToOpen);

@@ -439,17 +439,16 @@ public class BooksServlet extends HttpServlet {
         Connection conn = connect();
         if (conn == null)
             return false;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
-            stmt = conn.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            String[] cols = {"FIRST", "LAST"};
-            String query = String.format("UPDATE CUSTOMERS SET FIRST = '%s' WHERE LAST = '%s' AND PASSWORD = '%s'", first, last, pass);
+            // Security fix: Use PreparedStatement instead of Statement to prevent SQL injection
+            String query = "UPDATE CUSTOMERS SET FIRST = ? WHERE LAST = ? AND PASSWORD = ?";
             System.out.println("QUERY :" + query);
-            int ret = stmt.executeUpdate(query, cols);
+            stmt = conn.prepareStatement(query, new String[]{"FIRST", "LAST"});
+            stmt.setString(1, first);
+            stmt.setString(2, last);
+            stmt.setString(3, pass);
+            int ret = stmt.executeUpdate();
             // Clean up
             stmt.close();
         } catch (SQLException e) {
@@ -470,20 +469,24 @@ public class BooksServlet extends HttpServlet {
         Connection conn = connect();
         if (conn == null)
             return false;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
-            stmt = conn.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
+            // Security fix: Use PreparedStatement to prevent SQL injection
             int[] cols = {1, 2};
-            String query = String.format("UPDATE CUSTOMERS SET FIRST = '%s' WHERE LAST = '%s' AND PASSWORD = '%s'", first, last, pass);
+            String query = "UPDATE CUSTOMERS SET FIRST = ? WHERE LAST = ? AND PASSWORD = ?";
             System.out.println("QUERY :" + query);
             if (methodName.equalsIgnoreCase("execute")) {
-                boolean ret = stmt.execute(query, cols);
+                stmt = conn.prepareStatement(query, cols);
+                stmt.setString(1, first);
+                stmt.setString(2, last);
+                stmt.setString(3, pass);
+                boolean ret = stmt.execute();
             } else if (methodName.equalsIgnoreCase("executeUpdate")) {
-                int ret = stmt.executeUpdate(query, cols);
+                stmt = conn.prepareStatement(query, cols);
+                stmt.setString(1, first);
+                stmt.setString(2, last);
+                stmt.setString(3, pass);
+                int ret = stmt.executeUpdate();
             } else {
                 System.out.println("Invalid SQL method!");
             }
@@ -493,7 +496,7 @@ public class BooksServlet extends HttpServlet {
             return false;
         } finally {
             try {
-                stmt.close();
+                if (stmt != null) stmt.close();
                 conn.close();
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
@@ -506,20 +509,24 @@ public class BooksServlet extends HttpServlet {
         Connection conn = connect();
         if (conn == null)
             return false;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
-            stmt = conn.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
+            // Security fix: Use PreparedStatement to prevent SQL injection
             int autogenkeys = Statement.RETURN_GENERATED_KEYS;
-             String query = String.format("UPDATE CUSTOMERS SET FIRST = '%s' WHERE LAST = '%s' AND PASSWORD = '%s'", first, last, pass);
+            String query = "UPDATE CUSTOMERS SET FIRST = ? WHERE LAST = ? AND PASSWORD = ?";
             System.out.println("QUERY :" + query);
             if (methodName.equalsIgnoreCase("execute")) {
-                boolean ret = stmt.execute(query, autogenkeys);
+                stmt = conn.prepareStatement(query, autogenkeys);
+                stmt.setString(1, first);
+                stmt.setString(2, last);
+                stmt.setString(3, pass);
+                boolean ret = stmt.execute();
             } else if (methodName.equalsIgnoreCase("executeUpdate")) {
-                int ret = stmt.executeUpdate(query, autogenkeys);
+                stmt = conn.prepareStatement(query, autogenkeys);
+                stmt.setString(1, first);
+                stmt.setString(2, last);
+                stmt.setString(3, pass);
+                int ret = stmt.executeUpdate();
             } else {
                 System.out.println("Invalid SQL method!");
             }
@@ -529,7 +536,7 @@ public class BooksServlet extends HttpServlet {
             return false;
         } finally {
             try {
-                stmt.close();
+                if (stmt != null) stmt.close();
                 conn.close();
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
@@ -582,11 +589,13 @@ public class BooksServlet extends HttpServlet {
             // Create database connection
             conn = DriverManager.getConnection(db, user, password);
 
-            // Create and execute statement
-            Statement stmt = conn.createStatement();
-            String sql = "INSERT INTO CUSTOMER VALUES (\'" + first + "\',\'" + last + "\', \'" + pass + "')";
-            System.out.println("Adding: " + sql);
-            stmt.executeQuery(sql);
+            // Security fix: Use PreparedStatement instead of concatenating values to prevent SQL injection
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO CUSTOMER VALUES (?, ?, ?)");
+            stmt.setString(1, first);
+            stmt.setString(2, last);
+            stmt.setString(3, pass);
+            System.out.println("Adding customer: " + first + " " + last);
+            stmt.executeUpdate();
             System.out.println("Inserted into Database");
 
             // Clean up
@@ -640,15 +649,16 @@ public class BooksServlet extends HttpServlet {
         
         try {
             StringBuffer sbuf = new StringBuffer();
-            String query = new String();
-            
-            query = "select FIRST, LAST from CUSTOMERS WHERE LAST=\'" + name + "\' AND PASSWORD= \'" + pass + "\'";
+            // Security fix: Use PreparedStatement with parameters to prevent SQL injection
+            String query = "select FIRST, LAST from CUSTOMERS WHERE LAST=? AND PASSWORD=?";
             
             
             if (methodName.equalsIgnoreCase("executeQuerySQL")) {
             	System.out.println("QUERY :" + query);
-            	Statement stmt = conn.createStatement();
-            	ResultSet rs = stmt.executeQuery(query);
+            	PreparedStatement stmt = conn.prepareStatement(query);
+            	stmt.setString(1, name);
+            	stmt.setString(2, pass);
+            	ResultSet rs = stmt.executeQuery();
                 // Loop through the data and print all artist names
                 while (rs.next()) {
                     sbuf.append("Customer Name: " + rs.getString("FIRST") + " " + rs.getString("LAST"));
@@ -662,6 +672,8 @@ public class BooksServlet extends HttpServlet {
             } else if (methodName.equalsIgnoreCase("PreparedStatementEexecuteQuerySQL")) {
             	System.out.println("PreparedStatementQUERY :" + query);
             	PreparedStatement stmt = conn.prepareStatement(query);
+            	stmt.setString(1, name);
+            	stmt.setString(2, pass);
             	ResultSet rs = stmt.executeQuery();
                 // Loop through the data and print all artist names
                 while (rs.next()) {
@@ -674,12 +686,16 @@ public class BooksServlet extends HttpServlet {
                 stmt.close();
                 rs.close();
             } else if (methodName.equalsIgnoreCase("executeSQL")) {
-            	Statement stmt = conn.createStatement();
-                retVal = stmt.execute(query);
+            	PreparedStatement stmt = conn.prepareStatement(query);
+            	stmt.setString(1, name);
+            	stmt.setString(2, pass);
+                retVal = stmt.execute();
                 stmt.close();
             } else if (methodName.equalsIgnoreCase("executeUpdateSQL")) {
-            	Statement stmt = conn.createStatement();
-                retVal = stmt.executeUpdate(query) > 0;
+            	PreparedStatement stmt = conn.prepareStatement(query);
+            	stmt.setString(1, name);
+            	stmt.setString(2, pass);
+                retVal = stmt.executeUpdate() > 0;
                 stmt.close();
             }
         } catch (SQLException e) {
@@ -701,49 +717,50 @@ public class BooksServlet extends HttpServlet {
         if (conn == null)
             return false;       
         
-        // Check for multiple values entry before constructing the query
+        // Security fix: Parse multiple values for IN clause using PreparedStatement
         String[] name_values = name.split(",");
-        String parse_name_values = name_values[0];
-        for (int i = 1; i< name_values.length; i++ ) {
-        	parse_name_values += "\',\'" ;
-        	parse_name_values += name_values[i];
-        }
         
         try {
             StringBuffer sbuf = new StringBuffer();
-            String query;
+            PreparedStatement stmt = null;
             
-            // Check for filter operation
+            // Check for filter operation with LIKE
             if(n==2) {
-            	query = "select FIRST, LAST from CUSTOMERS WHERE LAST like \'" + name + "%\' AND PASSWORD= \'" + pass + "\'";
+            	String query = "select FIRST, LAST from CUSTOMERS WHERE LAST like ? AND PASSWORD= ?";
+            	System.out.println("QUERY :" + query);
+            	stmt = conn.prepareStatement(query);
+            	stmt.setString(1, name + "%");
+            	stmt.setString(2, pass);
             }
-            // Check for normal query operation
+            // Check for normal query operation or IN clause
             else {
-            	if(parse_name_values.contains(",")) {
-            		query = "select FIRST, LAST from CUSTOMERS WHERE LAST IN (\'" + parse_name_values + "\')";
+            	if(name_values.length > 1) {
+            		// Security fix: Build parameterized query for IN clause
+            		StringBuilder queryBuilder = new StringBuilder("select FIRST, LAST from CUSTOMERS WHERE LAST IN (");
+            		for (int i = 0; i < name_values.length; i++) {
+            			queryBuilder.append("?");
+            			if (i < name_values.length - 1) {
+            				queryBuilder.append(",");
+            			}
+            		}
+            		queryBuilder.append(")");
+            		String query = queryBuilder.toString();
+            		System.out.println("QUERY :" + query);
+            		stmt = conn.prepareStatement(query);
+            		for (int i = 0; i < name_values.length; i++) {
+            			stmt.setString(i + 1, name_values[i]);
+            		}
             	} else {
-            		query = "select FIRST, LAST from CUSTOMERS WHERE LAST=\'" + parse_name_values + "\' AND PASSWORD= \'" + pass + "\'";
+            		String query = "select FIRST, LAST from CUSTOMERS WHERE LAST=? AND PASSWORD=?";
+            		System.out.println("QUERY :" + query);
+            		stmt = conn.prepareStatement(query);
+            		stmt.setString(1, name_values[0]);
+            		stmt.setString(2, pass);
             	}
             }
-            System.out.println("QUERY :" + query);  
             
-            // Check for preparedstatement
-            if (methodName.equalsIgnoreCase("executeQuerySQL")) {
-            	Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(query);
-                // Loop through the data and print all artist names
-                while (rs.next()) {
-                    sbuf.append("Customer Name: " + rs.getString("FIRST") + " " + rs.getString("LAST"));
-                    System.out.println("Customer Name: " + rs.getString("FIRST") + " " + rs.getString("LAST"));
-                    sbuf.append("<br>");
-                    retVal = sbuf.toString().length() > 2;
-                }
-                // Clean up
-                stmt.close();
-                rs.close();
-            } else if (methodName.equalsIgnoreCase("PreparedStatementEexecuteQuerySQL")) {
-            	System.out.println("PreparedStatementQUERY :" + query);
-            	PreparedStatement stmt = conn.prepareStatement(query);
+            // Execute the query based on method name
+            if (methodName.equalsIgnoreCase("executeQuerySQL") || methodName.equalsIgnoreCase("PreparedStatementEexecuteQuerySQL")) {
             	ResultSet rs = stmt.executeQuery();
                 // Loop through the data and print all artist names
                 while (rs.next()) {
@@ -756,12 +773,10 @@ public class BooksServlet extends HttpServlet {
                 stmt.close();
                 rs.close();
             } else if (methodName.equalsIgnoreCase("executeSQL")) {
-            	Statement stmt = conn.createStatement();
-                retVal = stmt.execute(query);
+                retVal = stmt.execute();
                 stmt.close();
             } else if (methodName.equalsIgnoreCase("executeUpdateSQL")) {
-            	Statement stmt = conn.createStatement();
-                retVal = stmt.executeUpdate(query) > 0;
+                retVal = stmt.executeUpdate() > 0;
                 stmt.close();
             }
         } catch (SQLException e) {
@@ -779,38 +794,53 @@ public class BooksServlet extends HttpServlet {
     
     public boolean executeSQLHelper(String methodName, String ids) {
         boolean retVal = false;
-        String query = new String() ;
         Connection conn = connect();
         if (conn == null)
             return false;
         
-        if(ids.contains(",")) {
-        	query = "select ID, NAME from ACCOUNTS WHERE ID IN (" + ids + ")" ;
-        } else {
-        	query = "select ID from ACCOUNTS WHERE ID = " + ids ;
-        }
+        // Security fix: Use PreparedStatement to prevent SQL injection
+        String[] id_values = ids.split(",");
+        PreparedStatement stmt = null;
         
         try {
-            if (methodName.equalsIgnoreCase("executeQuerySQL")) {
-            	StringBuffer sbuf = new StringBuffer();
-                Statement stmt = conn.createStatement();
-                System.out.println("QUERY :" + query);
-            	ResultSet rs = stmt.executeQuery(query);
-                // Loop through the data and print all artist names
-                while (rs.next()) {
-                	sbuf.append("Customer id: " + rs.getString("ID"));
-                	System.out.println("Customer id: " + rs.getString("ID"));
-                	sbuf.append("<br>");
-                	retVal = sbuf.toString().length() > 2;
-                	}
-                // Clean up
-                stmt.close();
-                rs.close();
-            } else if (methodName.equalsIgnoreCase("PreparedStatementEexecuteQuerySQL")) {
-            	System.out.println("PreparedStatementQUERY :" + query);
-            	PreparedStatement stmt = conn.prepareStatement(query);
+            if(id_values.length > 1) {
+            	// Build parameterized query for IN clause
+            	StringBuilder queryBuilder = new StringBuilder("select ID, NAME from ACCOUNTS WHERE ID IN (");
+            	for (int i = 0; i < id_values.length; i++) {
+            		queryBuilder.append("?");
+            		if (i < id_values.length - 1) {
+            			queryBuilder.append(",");
+            		}
+            	}
+            	queryBuilder.append(")");
+            	String query = queryBuilder.toString();
+            	System.out.println("QUERY :" + query);
+            	stmt = conn.prepareStatement(query);
+            	for (int i = 0; i < id_values.length; i++) {
+            		// Validate that each ID is numeric
+            		try {
+            			int id = Integer.parseInt(id_values[i].trim());
+            			stmt.setInt(i + 1, id);
+            		} catch (NumberFormatException e) {
+            			System.err.println("Invalid ID format: " + id_values[i]);
+            			return false;
+            		}
+            	}
+            } else {
+            	String query = "select ID from ACCOUNTS WHERE ID = ?";
+            	System.out.println("QUERY :" + query);
+            	stmt = conn.prepareStatement(query);
+            	try {
+            		int id = Integer.parseInt(ids.trim());
+            		stmt.setInt(1, id);
+            	} catch (NumberFormatException e) {
+            		System.err.println("Invalid ID format: " + ids);
+            		return false;
+            	}
+            }
+            
+            if (methodName.equalsIgnoreCase("executeQuerySQL") || methodName.equalsIgnoreCase("PreparedStatementEexecuteQuerySQL")) {
             	ResultSet rs = stmt.executeQuery();
-            	
             	StringBuffer sbuf = new StringBuffer();
                 // Loop through the data and print all artist names
                 while (rs.next()) {
@@ -818,17 +848,15 @@ public class BooksServlet extends HttpServlet {
                 	System.out.println("Customer id: " + rs.getString("ID"));
                 	sbuf.append("<br>");
                 	retVal = sbuf.toString().length() > 2;
-                	}
+                }
                 // Clean up
                 stmt.close();
                 rs.close();
             } else if (methodName.equalsIgnoreCase("executeSQL")) {
-                Statement stmt = conn.createStatement();
-                retVal = stmt.execute(query);
+                retVal = stmt.execute();
                 stmt.close();
             } else if (methodName.equalsIgnoreCase("executeUpdateSQL")) {
-                Statement stmt = conn.createStatement();
-                retVal = stmt.executeUpdate(query) > 0;
+                retVal = stmt.executeUpdate() > 0;
                 stmt.close();
             }
             
