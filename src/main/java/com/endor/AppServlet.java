@@ -8,12 +8,51 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 @javax.servlet.annotation.WebServlet(name = "AppServlet", urlPatterns = "/AppServlet")
 public class AppServlet extends javax.servlet.http.HttpServlet {
+    
+    // Helper method to check if a host is an internal/private address
+    private boolean isInternalAddress(String host) {
+        if (host == null || host.isEmpty()) {
+            return false;
+        }
+        
+        // Check for obvious internal addresses
+        if (host.startsWith("localhost") || host.startsWith("127.") || 
+            host.contains("metadata") || host.contains("169.254")) {
+            return true;
+        }
+        
+        // Check for private IP ranges
+        if (host.startsWith("192.168.") || host.startsWith("10.")) {
+            return true;
+        }
+        
+        // Check for 172.16.0.0 - 172.31.255.255 range
+        if (host.startsWith("172.")) {
+            String[] parts = host.split("\\.");
+            if (parts.length >= 2) {
+                try {
+                    int secondOctet = Integer.parseInt(parts[1]);
+                    if (secondOctet >= 16 && secondOctet <= 31) {
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid format, treat as potentially dangerous
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     protected void doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         doGet(request, response);
     }
@@ -104,18 +143,8 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
                         return;
                     }
                     
-                    // Prevent access to internal/private networks (basic check)
-                    if (host.startsWith("localhost") || host.startsWith("127.") || 
-                        host.startsWith("192.168.") || host.startsWith("10.") ||
-                        host.startsWith("172.16.") || host.startsWith("172.17.") ||
-                        host.startsWith("172.18.") || host.startsWith("172.19.") ||
-                        host.startsWith("172.20.") || host.startsWith("172.21.") ||
-                        host.startsWith("172.22.") || host.startsWith("172.23.") ||
-                        host.startsWith("172.24.") || host.startsWith("172.25.") ||
-                        host.startsWith("172.26.") || host.startsWith("172.27.") ||
-                        host.startsWith("172.28.") || host.startsWith("172.29.") ||
-                        host.startsWith("172.30.") || host.startsWith("172.31.") ||
-                        host.contains("metadata") || host.contains("169.254")) {
+                    // Prevent access to internal/private networks using helper method
+                    if (isInternalAddress(host)) {
                         response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
                         return;
                     }
@@ -155,19 +184,8 @@ public class AppServlet extends javax.servlet.http.HttpServlet {
         String UrlToOpen = ssrfURL.replaceFirst("HTTPS://", "");
         UrlToOpen = UrlToOpen.replaceFirst("https://", "");
         
-        // Security fix: Validate hostname to prevent SSRF attacks
-        // Prevent access to internal/private networks
-        if (UrlToOpen.startsWith("localhost") || UrlToOpen.startsWith("127.") || 
-            UrlToOpen.startsWith("192.168.") || UrlToOpen.startsWith("10.") ||
-            UrlToOpen.startsWith("172.16.") || UrlToOpen.startsWith("172.17.") ||
-            UrlToOpen.startsWith("172.18.") || UrlToOpen.startsWith("172.19.") ||
-            UrlToOpen.startsWith("172.20.") || UrlToOpen.startsWith("172.21.") ||
-            UrlToOpen.startsWith("172.22.") || UrlToOpen.startsWith("172.23.") ||
-            UrlToOpen.startsWith("172.24.") || UrlToOpen.startsWith("172.25.") ||
-            UrlToOpen.startsWith("172.26.") || UrlToOpen.startsWith("172.27.") ||
-            UrlToOpen.startsWith("172.28.") || UrlToOpen.startsWith("172.29.") ||
-            UrlToOpen.startsWith("172.30.") || UrlToOpen.startsWith("172.31.") ||
-            UrlToOpen.contains("metadata") || UrlToOpen.contains("169.254")) {
+        // Security fix: Validate hostname to prevent SSRF attacks using helper method
+        if (isInternalAddress(UrlToOpen)) {
             response.getWriter().println("<p style='color:red;'>Error: Access to internal/private network addresses is not allowed.</p>");
             return;
         }
