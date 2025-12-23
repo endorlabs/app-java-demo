@@ -1,0 +1,14 @@
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Endor Labs CLI
+endorctl
